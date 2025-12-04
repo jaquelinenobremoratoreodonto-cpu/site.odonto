@@ -16,7 +16,7 @@ class AnamneseForm {
         this.lastY = 0;
         
         // Configuração do Google Apps Script
-        this.GAS_URL = 'https://script.google.com/macros/s/AKfycbzBPqwp4VRRpaYkzxUAALb_V6rITXGsxQ34SInHLtQ8PNZLTM78co4ebAqEJX4XgLPk/exec'; // SUBSTITUIR COM SUA URL
+        this.GAS_URL = 'https://script.google.com/macros/s/AKfycbwFp8oTsb-MlPjH5v8amM8fO2Jru8pM8U0HFlDreJNqnlkNmc3XDHccp3tPUxnVeMhv/exec'; // SUBSTITUIR COM SUA URL
         
         this.init();
     }
@@ -384,86 +384,121 @@ class AnamneseForm {
     }
     
     async submitForm() {
-        // Validar seção atual
-        if (!this.validateCurrentSection()) {
-            return;
-        }
+    // Validação da seção atual
+    if (!this.validateCurrentSection()) {
+        alert('Por favor, corrija os erros no formulário.');
+        return;
+    }
+    
+    // Validar assinatura
+    const signature = document.getElementById('assinatura_eletronica').value;
+    if (!signature) {
+        alert('Por favor, forneça sua assinatura eletrônica.');
+        return;
+    }
+    
+    // Validar consentimento
+    const consentimento = document.getElementById('consentimento');
+    if (!consentimento.checked) {
+        alert('Você precisa concordar com os termos para enviar o formulário.');
+        consentimento.focus();
+        return;
+    }
+    
+    // Mostrar loading
+    this.showLoading(true);
+    
+    try {
+        // Coletar dados do formulário
+        const formData = this.collectFormData();
+        console.log('📤 Dados coletados para envio:', formData);
         
-        // Validar assinatura
-        const signature = document.getElementById('assinatura_eletronica').value;
-        if (!signature) {
-            alert('Por favor, forneça sua assinatura eletrônica.');
-            document.getElementById('signatureCanvas').scrollIntoView({ behavior: 'smooth' });
-            return;
-        }
+        // IMPORTANTE: Substitua esta URL pela sua URL do Google Apps Script
+        // A URL deve terminar com /exec
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwFp8oTsb-MlPjH5v8amM8fO2Jru8pM8U0HFlDreJNqnlkNmc3XDHccp3tPUxnVeMhv/exec';
         
-        // Validar consentimento
-        const consentimento = document.getElementById('consentimento');
-        if (!consentimento.checked) {
-            alert('Você precisa concordar com os termos para enviar o formulário.');
-            consentimento.focus();
-            return;
-        }
+        // Método 1: Usando fetch com tratamento de CORS
+        console.log('Enviando para Google Apps Script...');
         
-        // Mostrar indicador de carregamento
-        this.showLoading(true);
+        // Usar proxy CORS se necessário (alternativa)
+        // const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+        // const response = await fetch(proxyUrl + GAS_URL, {
         
+        const response = await fetch(GAS_URL, {
+            method: 'POST',
+            mode: 'no-cors', // IMPORTANTE: 'no-cors' para evitar problemas CORS
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        // Com 'no-cors', não podemos ler a resposta, mas sabemos que foi enviada
+        console.log('✅ Dados enviados com sucesso!');
+        
+        // Esperar um pouco para o processamento
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Mostrar mensagem de sucesso
+        this.showSuccessModal();
+        
+        // Resetar formulário após delay
+        setTimeout(() => {
+            this.resetForm();
+        }, 3000);
+        
+    } catch (error) {
+        console.error('❌ Erro ao enviar formulário:', error);
+        
+        // Tentar método alternativo (XMLHttpRequest)
         try {
-            const formData = this.collectFormData();
-            console.log('Dados coletados:', formData);
-            
-            // Enviar para Google Apps Script
-            const response = await fetch(this.GAS_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Importante para Google Apps Script
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-            
-            // Nota: Com 'no-cors' não podemos ler a resposta
-            // Mas o envio ainda funciona
-            console.log('Dados enviados para Google Apps Script');
-            
-            // Mostrar modal de sucesso
-            this.showSuccessModal();
-            
-            // Resetar formulário após 3 segundos
-            setTimeout(() => {
-                this.resetForm();
-            }, 3000);
-            
-        } catch (error) {
-            console.error('Erro ao enviar formulário:', error);
-            this.showErrorModal('Erro ao enviar formulário. Por favor, tente novamente.');
-        } finally {
-            this.showLoading(false);
+            console.log('Tentando método alternativo (XMLHttpRequest)...');
+            await this.enviarViaXMLHttpRequest();
+        } catch (error2) {
+            console.error('❌ Erro no método alternativo:', error2);
+            this.showErrorModal('Erro ao enviar formulário. Por favor, tente novamente ou entre em contato.');
         }
+    } finally {
+        this.showLoading(false);
     }
-    
-    showLoading(show) {
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        loadingIndicator.style.display = show ? 'flex' : 'none';
-    }
-    
-    showSuccessModal() {
-        const modal = document.getElementById('successModal');
-        modal.classList.add('active');
+}
+
+// Método alternativo usando XMLHttpRequest
+enviarViaXMLHttpRequest() {
+    return new Promise((resolve, reject) => {
+        const formData = this.collectFormData();
+        const GAS_URL = 'SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI';
         
-        // Configurar botão de fechar
-        const closeBtn = document.getElementById('closeModal');
-        closeBtn.onclick = () => {
-            modal.classList.remove('active');
-        };
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', GAS_URL, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
         
-        // Fechar modal ao clicar fora
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                console.log('Status:', xhr.status, 'Resposta:', xhr.responseText);
+                
+                if (xhr.status === 0 || xhr.status === 200) {
+                    // Google Apps Script pode retornar status 0 em alguns casos
+                    console.log('✅ Envio via XMLHttpRequest bem-sucedido');
+                    resolve();
+                } else {
+                    reject(new Error(`Status ${xhr.status}: ${xhr.responseText}`));
+                }
             }
         };
-    }
+        
+        xhr.onerror = () => {
+            reject(new Error('Erro de rede'));
+        };
+        
+        xhr.timeout = 30000; // 30 segundos
+        xhr.ontimeout = () => {
+            reject(new Error('Tempo esgotado'));
+        };
+        
+        xhr.send(JSON.stringify(formData));
+    });
+}
     
     showErrorModal(message) {
         // Criar modal de erro dinâmico
