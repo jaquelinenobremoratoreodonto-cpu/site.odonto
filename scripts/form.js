@@ -272,7 +272,7 @@ class AnamneseForm {
             const formData = this.collectFormData();
             
             // Send data to Google Apps Script
-            const response = await fetch('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL', {
+            const response = await fetch('https://script.google.com/macros/s/AKfycbygITsKIcgSCwMyzQlKSkj4mlJ1HgJbRNc1PLiatZhaXIbf0wKxEWBDPtpUa2qigswp/exec', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
