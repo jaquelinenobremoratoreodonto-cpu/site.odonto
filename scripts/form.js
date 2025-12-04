@@ -16,7 +16,7 @@ class AnamneseForm {
         this.lastY = 0;
         
         // Configuração do Google Apps Script
-        this.GAS_URL = 'https://script.google.com/macros/s/AKfycbw09A3VGQH7v76tMPiktQjW3glxmdX0hMxI5iugDlHGvHxLb7fRKbZkr-JKIrWJ60Ne/exec'; // SUBSTITUIR COM SUA URL
+        this.GAS_URL = 'https://script.google.com/macros/s/AKfycbzBPqwp4VRRpaYkzxUAALb_V6rITXGsxQ34SInHLtQ8PNZLTM78co4ebAqEJX4XgLPk/exec'; // SUBSTITUIR COM SUA URL
         
         this.init();
     }
