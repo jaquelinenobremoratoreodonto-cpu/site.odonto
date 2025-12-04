@@ -358,3 +358,214 @@ body {
         justify-content: center;
     }
 }
+
+/* Adicionar estas regras no final do arquivo CSS */
+
+/* Modal de sucesso - corrigir bug de exibição fixa */
+.modal-overlay {
+    display: none; /* Mudar de 'flex' para 'none' */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.4s ease;
+}
+
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-icon.success {
+    color: var(--success-green);
+}
+
+.modal-icon.error {
+    color: var(--error-red);
+}
+
+/* Rodapé melhorado */
+.footer {
+    background: linear-gradient(135deg, var(--dark-pink), var(--primary-pink));
+    color: var(--white);
+    padding: 3rem 0 2rem;
+    margin-top: 3rem;
+}
+
+.footer .container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.footer-contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.contact-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.contact-item:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.contact-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.contact-value {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.footer-link {
+    color: var(--white);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.footer-link:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Melhorias nos campos condicionais */
+.conditional-field {
+    display: none;
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: var(--light-pink);
+    border-radius: 10px;
+    border-left: 5px solid var(--primary-pink);
+    animation: slideDown 0.3s ease;
+}
+
+.conditional-field.active {
+    display: block;
+}
+
+/* Estados de erro e sucesso */
+.form-control.error {
+    border-color: var(--error-red);
+    background: #fff5f5;
+}
+
+.form-control.success {
+    border-color: var(--success-green);
+    background: #f5fff5;
+}
+
+/* Responsividade adicional */
+@media (max-width: 480px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-item {
+        padding: 0.8rem;
+    }
+    
+    .modal-content {
+        padding: 2rem 1.5rem;
+        width: 95%;
+    }
+}
+
+/* Animações de transição */
+.form-section {
+    transition: all 0.3s ease;
+}
+
+/* Loading overlay melhorado */
+.loading-content {
+    background: var(--white);
+    padding: 3rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(233, 30, 99, 0.2);
+    border: 2px solid var(--light-pink);
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--light-pink);
+    border-top: 4px solid var(--primary-pink);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+/* Estilos para grupos de sim/não */
+.yes-no {
+    background: var(--light-gray);
+    padding: 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.yes-no label:first-child {
+    font-weight: 600;
+    color: var(--dark-pink);
+    margin-bottom: 0.8rem;
+    display: block;
+}
