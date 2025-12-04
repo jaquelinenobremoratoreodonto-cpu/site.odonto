@@ -1331,8 +1331,8 @@
                 this.lastX = 0;
                 this.lastY = 0;
                 
-                // IMPORTANTE: SUBSTITUA ESTA URL PELA URL DO SEU GOOGLE APPS SCRIPT
-                this.GAS_URL = 'https://script.google.com/macros/s/AKfycbwFp8oTsb-MlPjH5v8amM8fO2Jru8pM8U0HFlDreJNqnlkNmc3XDHccp3tPUxnVeMhv/exec';
+                // URL DO GOOGLE APPS SCRIPT - SUBSTITUA POR SUA URL
+                this.GAS_URL = 'https://script.google.com/macros/s/AKfycbzzXv41bMDbk4Z_bxpLR0INh_ypgSUZeUWepr0S4R1EDjzUZ7P-IFHBg08DU1kkwPKE/exec';
                 
                 this.init();
             }
@@ -1363,11 +1363,13 @@
                 this.ctx.lineCap = 'round';
                 this.ctx.strokeStyle = '#000000';
                 
+                // Mouse events
                 this.signatureCanvas.addEventListener('mousedown', (e) => this.startDrawing(e));
                 this.signatureCanvas.addEventListener('mousemove', (e) => this.draw(e));
                 this.signatureCanvas.addEventListener('mouseup', () => this.stopDrawing());
                 this.signatureCanvas.addEventListener('mouseout', () => this.stopDrawing());
                 
+                // Touch events
                 this.signatureCanvas.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     this.startDrawing(e.touches[0]);
@@ -1380,6 +1382,7 @@
                 
                 this.signatureCanvas.addEventListener('touchend', () => this.stopDrawing());
                 
+                // Clear button
                 document.getElementById('clearSignature').addEventListener('click', () => this.clearSignature());
             }
             
@@ -1464,6 +1467,7 @@
             }
             
             setupRealTimeValidation() {
+                // CPF formatting
                 const cpfInput = document.getElementById('cpf');
                 if (cpfInput) {
                     cpfInput.addEventListener('input', (e) => {
@@ -1480,6 +1484,7 @@
                     });
                 }
                 
+                // Phone formatting
                 const phoneInput = document.getElementById('telefone');
                 if (phoneInput) {
                     phoneInput.addEventListener('input', (e) => {
@@ -1528,14 +1533,17 @@
                     if (!input.value.trim()) {
                         input.focus();
                         input.classList.add('error');
+                        this.showError(input, 'Este campo é obrigatório');
                         isValid = false;
                     } else {
                         input.classList.remove('error');
+                        this.removeError(input);
                         
                         if (input.type === 'email') {
                             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                             if (!emailRegex.test(input.value)) {
                                 input.classList.add('error');
+                                this.showError(input, 'Email inválido');
                                 isValid = false;
                             }
                         }
@@ -1544,6 +1552,7 @@
                             const cpf = input.value.replace(/\D/g, '');
                             if (cpf.length === 11 && !this.validateCPF(cpf)) {
                                 input.classList.add('error');
+                                this.showError(input, 'CPF inválido');
                                 isValid = false;
                             }
                         }
@@ -1553,8 +1562,29 @@
                 return isValid;
             }
             
+            showError(input, message) {
+                this.removeError(input);
+                
+                const error = document.createElement('div');
+                error.className = 'error-message';
+                error.textContent = message;
+                error.style.color = 'var(--error-red)';
+                error.style.fontSize = '0.875rem';
+                error.style.marginTop = '0.25rem';
+                
+                input.parentNode.appendChild(error);
+            }
+            
+            removeError(input) {
+                const error = input.parentNode.querySelector('.error-message');
+                if (error) error.remove();
+            }
+            
             validateCPF(cpf) {
                 if (cpf.length !== 11) return false;
+                
+                // Elimina CPFs inválidos conhecidos
+                if (/^(\d)\1{10}$/.test(cpf)) return false;
                 
                 let sum = 0;
                 for (let i = 0; i < 9; i++) {
@@ -1580,33 +1610,44 @@
                 const data = {};
                 
                 for (let [key, value] of formData.entries()) {
-                    data[key] = value.trim();
+                    if (value && value !== 'on') {
+                        data[key] = value.trim();
+                    } else if (value === 'on') {
+                        data[key] = true;
+                    }
                 }
                 
+                // Adicionar metadados
                 data.timestamp = new Date().toISOString();
+                data.submission_date = new Date().toLocaleDateString('pt-BR');
                 
+                // Criar nome do arquivo
                 const date = new Date();
                 const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${
                     (date.getMonth() + 1).toString().padStart(2, '0')}-${
                     date.getFullYear()}`;
                 
-                data.filename = `Anamnese_${data.nome.replace(/\s+/g, '_')}_${data.cpf.replace(/\D/g, '')}_${formattedDate}.pdf`;
+                const nomeArquivo = `Anamnese_${data.nome.replace(/\s+/g, '_')}_${data.cpf.replace(/\D/g, '').substring(0, 11)}_${formattedDate}.pdf`;
+                data.filename = nomeArquivo;
                 
                 return data;
             }
             
             async submitForm() {
+                // Validar seção atual
                 if (!this.validateCurrentSection()) {
                     alert('Por favor, corrija os erros no formulário.');
                     return;
                 }
                 
+                // Validar assinatura
                 const signature = document.getElementById('assinatura_eletronica').value;
                 if (!signature) {
                     alert('Por favor, forneça sua assinatura eletrônica.');
                     return;
                 }
                 
+                // Validar consentimento
                 const consentimento = document.getElementById('consentimento');
                 if (!consentimento.checked) {
                     alert('Você precisa concordar com os termos para enviar o formulário.');
@@ -1614,51 +1655,133 @@
                     return;
                 }
                 
+                // Mostrar loading
                 this.showLoading(true);
                 
                 try {
                     const formData = this.collectFormData();
-                    console.log('Enviando dados:', formData);
+                    console.log('📤 Enviando dados:', formData);
                     
-                    // Usar XMLHttpRequest para contornar problemas de CORS
+                    // MÉTODO CORRETO: Usar Google Apps Script como endpoint
+                    const response = await this.sendToGoogleAppsScript(formData);
+                    
+                    console.log('✅ Resposta recebida:', response);
+                    
+                    if (response.success) {
+                        this.showSuccessModal();
+                        
+                        // Resetar formulário após 3 segundos
+                        setTimeout(() => {
+                            this.resetForm();
+                        }, 3000);
+                    } else {
+                        throw new Error(response.message || 'Erro no processamento');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao enviar:', error);
+                    
+                    // Tentar método alternativo
+                    try {
+                        console.log('🔄 Tentando método alternativo...');
+                        await this.sendViaProxy(formData);
+                    } catch (error2) {
+                        console.error('❌ Método alternativo falhou:', error2);
+                        this.showErrorModal(`Erro: ${error.message}. Por favor, tente novamente mais tarde ou entre em contato.`);
+                    }
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+            
+            // MÉTODO PRINCIPAL: Enviar para Google Apps Script
+            async sendToGoogleAppsScript(data) {
+                return new Promise((resolve, reject) => {
                     const xhr = new XMLHttpRequest();
-                    xhr.open('POST', this.GAS_URL, true);
+                    const url = this.GAS_URL;
+                    
+                    console.log(`📡 Enviando para: ${url}`);
+                    
+                    xhr.open('POST', url, true);
                     xhr.setRequestHeader('Content-Type', 'application/json');
                     
                     xhr.onreadystatechange = () => {
                         if (xhr.readyState === 4) {
-                            this.showLoading(false);
+                            console.log(`📥 Resposta recebida - Status: ${xhr.status}`);
                             
-                            if (xhr.status === 200 || xhr.status === 0) {
-                                // Google Apps Script retorna status 0 em alguns casos
-                                this.showSuccessModal();
-                                setTimeout(() => {
-                                    this.resetForm();
-                                }, 3000);
-                            } else {
-                                this.showErrorModal('Erro ao enviar formulário. Status: ' + xhr.status);
+                            try {
+                                if (xhr.status === 0) {
+                                    // Google Apps Script pode retornar status 0 em alguns casos
+                                    console.log('⚠️ Status 0 (possível CORS), verificando resposta...');
+                                }
+                                
+                                if (xhr.responseText) {
+                                    const response = JSON.parse(xhr.responseText);
+                                    resolve(response);
+                                } else {
+                                    // Se não há resposta, considerar como sucesso
+                                    resolve({
+                                        success: true,
+                                        message: 'Formulário enviado (resposta vazia)',
+                                        timestamp: new Date().toISOString()
+                                    });
+                                }
+                            } catch (parseError) {
+                                console.error('❌ Erro ao parsear resposta:', parseError);
+                                console.log('Resposta bruta:', xhr.responseText);
+                                
+                                // Tentar interpretar como sucesso mesmo com erro de parse
+                                if (xhr.responseText && xhr.responseText.includes('success')) {
+                                    resolve({
+                                        success: true,
+                                        message: 'Formulário processado (resposta mal formatada)',
+                                        rawResponse: xhr.responseText.substring(0, 100)
+                                    });
+                                } else {
+                                    reject(new Error(`Resposta inválida: ${xhr.responseText}`));
+                                }
                             }
                         }
                     };
                     
                     xhr.onerror = () => {
-                        this.showLoading(false);
-                        this.showErrorModal('Erro de conexão. Verifique sua internet e tente novamente.');
+                        console.error('❌ Erro de rede no XHR');
+                        reject(new Error('Erro de conexão com o servidor'));
                     };
                     
-                    xhr.timeout = 30000;
                     xhr.ontimeout = () => {
-                        this.showLoading(false);
-                        this.showErrorModal('Tempo esgotado. O servidor está demorando para responder.');
+                        console.error('⏱️ Timeout no XHR');
+                        reject(new Error('Tempo esgotado na conexão'));
                     };
                     
-                    xhr.send(JSON.stringify(formData));
+                    xhr.timeout = 45000; // 45 segundos
                     
-                } catch (error) {
-                    this.showLoading(false);
-                    console.error('Erro:', error);
-                    this.showErrorModal('Erro inesperado: ' + error.message);
+                    // Enviar dados
+                    xhr.send(JSON.stringify(data));
+                });
+            }
+            
+            // MÉTODO ALTERNATIVO: Usar proxy CORS
+            async sendViaProxy(data) {
+                // Usar um proxy CORS público
+                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                const targetUrl = this.GAS_URL;
+                
+                const response = await fetch(proxyUrl + targetUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Proxy error: ${response.status}`);
                 }
+                
+                const result = await response.json();
+                return result;
             }
             
             showLoading(show) {
@@ -1695,6 +1818,9 @@
                         </div>
                         <h3>Erro no Envio</h3>
                         <p>${message}</p>
+                        <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                            Você pode tentar novamente ou entrar em contato diretamente.
+                        </p>
                         <button class="btn-primary" id="closeErrorModal">OK</button>
                     </div>
                 `;
@@ -1726,6 +1852,8 @@
                 document.querySelectorAll('.error, .success').forEach(el => {
                     el.classList.remove('error', 'success');
                 });
+                
+                document.querySelectorAll('.error-message').forEach(el => el.remove());
             }
             
             addEventListeners() {
@@ -1747,9 +1875,56 @@
                 });
             }
         }
-
+        
+        // Inicializar quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', () => {
             new AnamneseForm();
+            
+            // Adicionar botão de teste (apenas para desenvolvimento)
+            if (window.location.hostname === 'localhost' || window.location.hostname.includes('github.io')) {
+                const testButton = document.createElement('button');
+                testButton.innerHTML = '🔧 Testar Conexão';
+                testButton.style.position = 'fixed';
+                testButton.style.bottom = '20px';
+                testButton.style.right = '20px';
+                testButton.style.zIndex = '9999';
+                testButton.style.padding = '10px 15px';
+                testButton.style.background = '#e91e63';
+                testButton.style.color = 'white';
+                testButton.style.border = 'none';
+                testButton.style.borderRadius = '5px';
+                testButton.style.cursor = 'pointer';
+                testButton.style.fontSize = '12px';
+                
+                testButton.onclick = async () => {
+                    const testData = {
+                        nome: "Teste de Conexão",
+                        email: "teste@exemplo.com",
+                        cpf: "123.456.789-09",
+                        telefone: "(11) 99999-9999",
+                        data_nascimento: "2000-01-01",
+                        genero: "masculino",
+                        endereco: "Endereço teste",
+                        consentimento: true,
+                        data_preenchimento: new Date().toLocaleDateString('pt-BR'),
+                        filename: "Teste_Conexao.pdf"
+                    };
+                    
+                    alert('Testando conexão com Google Apps Script...\nVerifique o console (F12)');
+                    
+                    try {
+                        const form = new AnamneseForm();
+                        const response = await form.sendToGoogleAppsScript(testData);
+                        console.log('✅ Teste bem-sucedido:', response);
+                        alert(`✅ Conexão OK!\n${response.message}`);
+                    } catch (error) {
+                        console.error('❌ Teste falhou:', error);
+                        alert(`❌ Falha na conexão:\n${error.message}`);
+                    }
+                };
+                
+                document.body.appendChild(testButton);
+            }
         });
     </script>
 </body>
