@@ -26,3 +26,35 @@ Sistema completo para coleta de anamnese odontológica desenvolvido para Dra. Ja
 - Signature Pad (Assinatura digital)
 
 ## 📁 Estrutura de Arquivos
+anamnese-odontologica/
+├── index.html # Estrutura principal
+├── style.css # Estilos CSS
+├── script.js # Lógica JavaScript
+└── README.md # Esta documentação
+
+
+## 🔧 Configuração do Projeto
+
+### 1. Configuração no GitHub
+
+1. Crie um repositório no GitHub
+2. Faça upload dos 3 arquivos (index.html, style.css, script.js)
+3. Ative o GitHub Pages:
+   - Settings > Pages
+   - Source: Branch main
+   - Folder: / (root)
+   - Salve
+
+### 2. Configuração do Google Apps Script
+
+#### Passo 1: Criar o Script
+1. Acesse https://script.google.com
+2. Clique em "Novo Projeto"
+3. Cole o código do arquivo `appscript.js`
+4. Salve como "Anamnese Odontológica"
+
+#### Passo 2: Configurar Variáveis
+No arquivo do Google Apps Script, atualize:
+```javascript
+const DRIVE_FOLDER_ID = 'COLE_O_ID_DA_PASTA_AQUI';
+const SPREADSHEET_ID = 'COLE_O_ID_DA_PLANILHA_AQUI';
