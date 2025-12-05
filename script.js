@@ -9,7 +9,7 @@
 // ============================================
 
 // URL do Google Apps Script (DEVE SER ATUALIZADA APÓS PUBLICAR O SCRIPT)
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwViX5fFhnmUR0OFwtShNKMY2JPDSKxNuF73DPceeGTo_nj7ocDP9nx0-rYHc0X2Vd8/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbydR8bnOCAygmNfe7IuhpmrYc2eYrSOehxQXvBxYY2aqFmUImw4yfh6TOnkikNv3wkm/exec";
 
 // Estado do formulário
 let currentSection = 1;
