@@ -110,60 +110,70 @@ function initConditionalQuestions() {
 }
 
 /**
- * Inicializa a área de assinatura digital - CORRIGIDO
+ * Inicializa a área de assinatura digital - CORREÇÃO COMPLETA
  */
 function initSignaturePad() {
     const canvas = document.getElementById('signatureCanvas');
     const clearBtn = document.getElementById('clearSignature');
-    const wrapper = canvas.parentElement;
     
-    // Função para redimensionar o canvas corretamente
-    const resizeCanvas = () => {
-        // Obtém as dimensões do container
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        
-        // Define as dimensões do canvas com base no container
-        canvas.width = wrapper.offsetWidth * ratio;
-        canvas.height = wrapper.offsetHeight * ratio;
-        
-        // Ajusta o contexto para a proporção correta
-        canvas.getContext('2d').scale(ratio, ratio);
+    // Verifica se o canvas existe
+    if (!canvas) {
+        console.error('Canvas de assinatura não encontrado!');
+        return;
+    }
+    
+    // Obtém o contexto 2D primeiro
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Não foi possível obter o contexto 2D do canvas');
+        return;
+    }
+    
+    // Define as dimensões do canvas
+    const setCanvasSize = () => {
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
         
         // Se já existe uma assinatura, redesenha
-        if (signaturePad) {
-            signaturePad.clear(); // Limpa e permite redesenho
-            setTimeout(() => {
-                if (signaturePad && !signaturePad.isEmpty()) {
-                    // Recria a assinatura se existir
-                    const data = signaturePad.toData();
-                    signaturePad.fromData(data);
-                }
-            }, 100);
+        if (signaturePad && !signaturePad.isEmpty()) {
+            const data = signaturePad.toData();
+            signaturePad.clear();
+            signaturePad.fromData(data);
         }
     };
     
-    // Inicializa o SignaturePad
+    // Configura o canvas inicialmente
+    setCanvasSize();
+    
+    // Inicializa o SignaturePad com configurações otimizadas
     signaturePad = new SignaturePad(canvas, {
-        backgroundColor: 'rgb(255, 255, 255)',
+        backgroundColor: 'rgba(255, 255, 255, 0)', // Transparente
         penColor: 'rgb(0, 0, 0)',
         minWidth: 1,
-        maxWidth: 3,
-        throttle: 16 // Melhora a performance
+        maxWidth: 2.5,
+        throttle: 5, // Reduzido para melhor responsividade
+        velocityFilterWeight: 0.7,
+        onEnd: () => {
+            console.log('Assinatura completada');
+        }
     });
-    
-    // Redimensiona o canvas inicialmente
-    resizeCanvas();
-    
-    // Redimensiona quando a janela for redimensionada
-    window.addEventListener('resize', resizeCanvas);
     
     // Configura o botão de limpar assinatura
     clearBtn.addEventListener('click', function() {
         signaturePad.clear();
+        console.log('Assinatura limpa');
     });
     
-    // Garante que o canvas seja redimensionado após um breve delay
-    setTimeout(resizeCanvas, 100);
+    // Redimensiona o canvas quando a janela é redimensionada
+    window.addEventListener('resize', setCanvasSize);
+    
+    // Também redimensiona quando a seção de assinatura é mostrada
+    document.getElementById('anamneseForm').addEventListener('sectionChange', function() {
+        if (currentSection === 5) {
+            setTimeout(setCanvasSize, 100);
+        }
+    });
     
     console.log('Área de assinatura inicializada corretamente');
 }
@@ -257,6 +267,15 @@ function changeSection(sectionNumber) {
     // Atualiza as informações de consentimento se estiver na seção 5
     if (sectionNumber === 5) {
         updateConsentInfo();
+        // Redimensiona o canvas da assinatura quando a seção é mostrada
+        setTimeout(() => {
+            const canvas = document.getElementById('signatureCanvas');
+            if (canvas && signaturePad) {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+        }, 100);
     }
     
     // Rola para o topo da seção
@@ -489,7 +508,7 @@ async function handleFormSubmit(e) {
     
     try {
         console.log('Gerando PDF...');
-        // Gera o PDF - USANDO MÉTODO SIMPLIFICADO PARA EVITAR ERRO
+        // Gera o PDF
         const pdfData = await generatePdfSimplified(formData);
         
         console.log('Enviando dados para Google Apps Script...');
@@ -519,7 +538,16 @@ async function handleFormSubmit(e) {
         }
     } catch (error) {
         console.error('Erro no envio do formulário:', error);
-        showErrorMessage(`Erro: ${error.message}`);
+        
+        // Mensagem de erro mais amigável
+        let errorMessage = error.message;
+        if (errorMessage.includes('Failed to fetch')) {
+            errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet. Se o problema persistir, entre em contato com a clínica.';
+        } else if (errorMessage.includes('Network Error')) {
+            errorMessage = 'Erro de rede. Verifique sua conexão com a internet.';
+        }
+        
+        showErrorMessage(`Erro: ${errorMessage}`);
     } finally {
         hideLoadingMessage();
     }
@@ -539,14 +567,19 @@ function collectFormData() {
         data[key] = value;
     }
     
-    // Adiciona a assinatura como base64
+    // Adiciona a assinatura como base64 (se existir)
     if (signaturePad && !signaturePad.isEmpty()) {
-        // Garante que a assinatura está em alta qualidade
-        const signatureData = signaturePad.toDataURL('image/png');
-        data.assinatura = signatureData;
-        console.log('Assinatura capturada com sucesso');
+        try {
+            // Usa qualidade mais baixa para evitar problemas
+            const signatureData = signaturePad.toDataURL('image/jpeg', 0.5);
+            data.assinatura = signatureData;
+            console.log('Assinatura capturada com sucesso');
+        } catch (error) {
+            console.warn('Erro ao capturar assinatura:', error);
+            data.assinatura = '';
+        }
     } else {
-        console.warn('Assinatura não capturada ou vazia');
+        data.assinatura = '';
     }
     
     // Adiciona data e hora do preenchimento
@@ -734,11 +767,26 @@ async function generatePdfSimplified(formData) {
             yPos += 15;
             pdf.text('Assinatura do paciente:', 25, yPos);
             
-            yPos += 5;
-            pdf.setLineWidth(0.5);
-            pdf.line(25, yPos, 125, yPos);
+            // Adiciona a assinatura se existir
+            if (formData.assinatura) {
+                try {
+                    // Adiciona a imagem da assinatura
+                    pdf.addImage(formData.assinatura, 'JPEG', 25, yPos + 5, 80, 30);
+                    yPos += 40;
+                } catch (error) {
+                    console.warn('Não foi possível adicionar a assinatura ao PDF:', error);
+                    yPos += 10;
+                    pdf.setLineWidth(0.5);
+                    pdf.line(25, yPos, 125, yPos);
+                    yPos += 15;
+                }
+            } else {
+                yPos += 5;
+                pdf.setLineWidth(0.5);
+                pdf.line(25, yPos, 125, yPos);
+                yPos += 10;
+            }
             
-            yPos += 10;
             pdf.text(formData.nome || 'Não informado', 25, yPos);
             
             // Rodapé
@@ -770,7 +818,7 @@ async function generatePdfSimplified(formData) {
 }
 
 /**
- * Envia dados para o Google Apps Script
+ * Envia dados para o Google Apps Script - CORREÇÃO DO ERRO "Failed to fetch"
  * @param {Object} formData - Dados do formulário
  * @param {string} pdfData - PDF em base64
  * @returns {Promise<Object>} Resposta do servidor
@@ -782,10 +830,15 @@ async function sendToGoogleScript(formData, pdfData) {
         pdf: pdfData,
         action: 'saveAnamnese'
     };
-    
+
     console.log('Enviando payload para Google Apps Script...');
-    
+    console.log('URL do script:', GOOGLE_SCRIPT_URL);
+
     try {
+        // Usa timeout para evitar que a requisição fique travada
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos timeout
+
         // Envia para o Google Apps Script
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
@@ -793,19 +846,63 @@ async function sendToGoogleScript(formData, pdfData) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
-        
+
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const responseData = await response.json();
         console.log('Resposta do Google Apps Script:', responseData);
         return responseData;
     } catch (error) {
         console.error('Erro ao enviar para Google Apps Script:', error);
+        
+        // Verifica se a URL está correta
+        if (GOOGLE_SCRIPT_URL === "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI") {
+            throw new Error('URL do Google Apps Script não configurada. Por favor, configure a URL antes de enviar.');
+        }
+        
+        if (error.name === 'AbortError') {
+            throw new Error('Tempo limite excedido ao tentar conectar ao servidor.');
+        }
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('Network Error')) {
+            throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão com a internet e se a URL do Google Apps Script está correta.');
+        }
+        
         throw error;
+    }
+}
+
+/**
+ * Testa a conexão com o Google Apps Script
+ */
+async function testGoogleScriptConnection() {
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: 'testConnection' })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Conexão testada com sucesso:', data);
+            return true;
+        } else {
+            console.error('Erro na conexão:', response.status);
+            return false;
+        }
+    } catch (error) {
+        console.error('Erro ao testar conexão:', error);
+        return false;
     }
 }
 
