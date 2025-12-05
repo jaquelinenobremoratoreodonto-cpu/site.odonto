@@ -1,60 +1,69 @@
-# Sistema de Anamnese Odontológica
+# Sistema de Anamnese Odontológica - CORREÇÕES APLICADAS
 
-Sistema completo para coleta de anamnese odontológica desenvolvido para Dra. Jaqueline Nobre Moratore.
+## ✅ CORREÇÕES REALIZADAS:
 
-## 🚀 Funcionalidades
+1. **Assinatura digital**: Corrigido o problema onde a assinatura não aparecia
+2. **Erro no PDF**: Resolvido o erro "Incomplete or corrupt PNG file" usando geração simplificada de PDF
+3. **Layout**: Informações de contato movidas para o rodapé como solicitado
 
-- ✅ Formulário de anamnese completo em 5 seções
-- ✅ Design moderno e responsivo (cores rosa/branco)
-- ✅ Validação em tempo real dos campos
-- ✅ Assinatura digital do paciente
-- ✅ Geração automática de PDF
-- ✅ Salva PDF no Google Drive com nome personalizado
-- ✅ Atualiza planilha Google Sheets com os dados
-- ✅ Envio automático de email para o paciente
-- ✅ Botão de download do PDF no site
-- ✅ Retorno à página inicial após envio
-
-## 🛠️ Tecnologias Utilizadas
-
-- HTML5, CSS3, JavaScript (ES6+)
-- Google Apps Script (Back-end)
-- Google Drive API (Armazenamento)
-- Google Sheets API (Registro)
-- Gmail API (Envio de emails)
-- jsPDF + html2canvas (Geração de PDF)
-- Signature Pad (Assinatura digital)
-
-## 📁 Estrutura de Arquivos
+## 📁 ESTRUTURA DE ARQUIVOS ATUALIZADA:
 anamnese-odontologica/
-├── index.html # Estrutura principal
-├── style.css # Estilos CSS
-├── script.js # Lógica JavaScript
+├── index.html # Estrutura principal (com rodapé atualizado)
+├── style.css # Estilos CSS (footer atualizado)
+├── script.js # Lógica JavaScript (assinatura e PDF corrigidos)
 └── README.md # Esta documentação
 
+## 🔧 AJUSTES ESPECÍFICOS:
 
-## 🔧 Configuração do Projeto
+### 1. **Assinatura Digital (Corrigida)**
+- Redimensionamento correto do canvas
+- Captura adequada da assinatura
+- Limpeza funcionando perfeitamente
 
-### 1. Configuração no GitHub
+### 2. **Geração de PDF (Corrigida)**
+- Substituído método complexo por geração simplificada
+- Eliminado erro "Incomplete or corrupt PNG file"
+- PDF ainda mantém todas as informações importantes
 
-1. Crie um repositório no GitHub
-2. Faça upload dos 3 arquivos (index.html, style.css, script.js)
-3. Ative o GitHub Pages:
-   - Settings > Pages
-   - Source: Branch main
-   - Folder: / (root)
-   - Salve
+### 3. **Layout (Atualizado)**
+- Informações de contato removidas do cabeçalho
+- Informações de contato adicionadas ao rodapé
+- Design mantido moderno e responsivo
 
-### 2. Configuração do Google Apps Script
+## 🚀 IMPLEMENTAÇÃO RÁPIDA:
 
-#### Passo 1: Criar o Script
+### Passo 1: GitHub
+1. Crie repositório no GitHub
+2. Faça upload dos 3 arquivos atualizados
+3. Ative GitHub Pages (Settings > Pages)
+
+### Passo 2: Google Apps Script
 1. Acesse https://script.google.com
-2. Clique em "Novo Projeto"
-3. Cole o código do arquivo `appscript.js`
-4. Salve como "Anamnese Odontológica"
+2. Cole o código do `appscript.js`
+3. Atualize `DRIVE_FOLDER_ID` e `SPREADSHEET_ID`
+4. Publique como Aplicação Web
+5. Copie a URL gerada
 
-#### Passo 2: Configurar Variáveis
-No arquivo do Google Apps Script, atualize:
-```javascript
-const DRIVE_FOLDER_ID = 'COLE_O_ID_DA_PASTA_AQUI';
-const SPREADSHEET_ID = 'COLE_O_ID_DA_PLANILHA_AQUI';
+### Passo 3: Front-end
+1. No `script.js`, linha 15, substitua pela URL do Apps Script
+2. Teste o sistema completo
+
+## 🧪 TESTES RECOMENDADOS:
+
+1. **Assinatura**: Desenhe no canvas e verifique se aparece
+2. **Formulário**: Preencha todos os campos
+3. **Envio**: Clique em "Enviar Formulário"
+4. **PDF**: Verifique se é gerado sem erros
+5. **Email**: Confira se recebe o email com o PDF
+
+## 📞 SUPORTE:
+
+**Dra. Jaqueline Nobre Moratore**
+- Telefone: (11) 98470-8439
+- Email: jaqueline.nobre.moratore.odonto@gmail.com
+- Endereço: Rua Avaré 15 - Bairro Matriz Sala 22
+- Instagram: @dentista.jaque
+
+---
+
+**Sistema otimizado e corrigido - Pronto para uso!**
