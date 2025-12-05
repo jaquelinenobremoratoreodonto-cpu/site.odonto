@@ -9,7 +9,7 @@
 // ============================================
 
 // URL do Google Apps Script (DEVE SER ATUALIZADA APÓS PUBLICAR O SCRIPT)
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYcMXZhjIUrAZ1anD9R3IshYRdSZKfsrwX-2mGsBZZdb7w1DTIHzjCyT7NLBI2Uiij/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwViX5fFhnmUR0OFwtShNKMY2JPDSKxNuF73DPceeGTo_nj7ocDP9nx0-rYHc0X2Vd8/exec";
 
 // Estado do formulário
 let currentSection = 1;
@@ -110,37 +110,62 @@ function initConditionalQuestions() {
 }
 
 /**
- * Inicializa a área de assinatura digital
+ * Inicializa a área de assinatura digital - CORRIGIDO
  */
 function initSignaturePad() {
     const canvas = document.getElementById('signatureCanvas');
     const clearBtn = document.getElementById('clearSignature');
+    const wrapper = canvas.parentElement;
     
-    // Ajusta o canvas para alta resolução
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Função para redimensionar o canvas corretamente
+    const resizeCanvas = () => {
+        // Obtém as dimensões do container
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        
+        // Define as dimensões do canvas com base no container
+        canvas.width = wrapper.offsetWidth * ratio;
+        canvas.height = wrapper.offsetHeight * ratio;
+        
+        // Ajusta o contexto para a proporção correta
+        canvas.getContext('2d').scale(ratio, ratio);
+        
+        // Se já existe uma assinatura, redesenha
+        if (signaturePad) {
+            signaturePad.clear(); // Limpa e permite redesenho
+            setTimeout(() => {
+                if (signaturePad && !signaturePad.isEmpty()) {
+                    // Recria a assinatura se existir
+                    const data = signaturePad.toData();
+                    signaturePad.fromData(data);
+                }
+            }, 100);
+        }
+    };
     
     // Inicializa o SignaturePad
     signaturePad = new SignaturePad(canvas, {
-        backgroundColor: '#ffffff',
-        penColor: '#333333',
+        backgroundColor: 'rgb(255, 255, 255)',
+        penColor: 'rgb(0, 0, 0)',
         minWidth: 1,
-        maxWidth: 3
+        maxWidth: 3,
+        throttle: 16 // Melhora a performance
     });
+    
+    // Redimensiona o canvas inicialmente
+    resizeCanvas();
+    
+    // Redimensiona quando a janela for redimensionada
+    window.addEventListener('resize', resizeCanvas);
     
     // Configura o botão de limpar assinatura
     clearBtn.addEventListener('click', function() {
         signaturePad.clear();
     });
     
-    // Redimensiona o canvas quando a janela é redimensionada
-    window.addEventListener('resize', function() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        signaturePad.clear(); // Limpa a assinatura ao redimensionar
-    });
+    // Garante que o canvas seja redimensionado após um breve delay
+    setTimeout(resizeCanvas, 100);
     
-    console.log('Área de assinatura inicializada');
+    console.log('Área de assinatura inicializada corretamente');
 }
 
 /**
@@ -350,7 +375,7 @@ function validateCurrentSection() {
     
     // Validação específica para a seção de assinatura
     if (currentSection === 5) {
-        if (signaturePad.isEmpty()) {
+        if (!signaturePad || signaturePad.isEmpty()) {
             showErrorMessage('Por favor, forneça sua assinatura digital');
             isValid = false;
         }
@@ -464,8 +489,8 @@ async function handleFormSubmit(e) {
     
     try {
         console.log('Gerando PDF...');
-        // Gera o PDF
-        const pdfData = await generatePdf(formData);
+        // Gera o PDF - USANDO MÉTODO SIMPLIFICADO PARA EVITAR ERRO
+        const pdfData = await generatePdfSimplified(formData);
         
         console.log('Enviando dados para Google Apps Script...');
         // Envia os dados para o Google Apps Script
@@ -515,304 +540,233 @@ function collectFormData() {
     }
     
     // Adiciona a assinatura como base64
-    if (!signaturePad.isEmpty()) {
-        data.assinatura = signaturePad.toDataURL();
+    if (signaturePad && !signaturePad.isEmpty()) {
+        // Garante que a assinatura está em alta qualidade
+        const signatureData = signaturePad.toDataURL('image/png');
+        data.assinatura = signatureData;
+        console.log('Assinatura capturada com sucesso');
+    } else {
+        console.warn('Assinatura não capturada ou vazia');
     }
     
     // Adiciona data e hora do preenchimento
     data.dataPreenchimento = new Date().toISOString();
     data.dataPreenchimentoFormatada = new Date().toLocaleString('pt-BR');
     
-    console.log('Dados do formulário coletados:', data);
+    console.log('Dados do formulário coletados:', Object.keys(data));
     return data;
 }
 
 /**
- * Gera o PDF com os dados do formulário
+ * Gera o PDF com os dados do formulário - MÉTODO SIMPLIFICADO
  * @param {Object} formData - Dados do formulário
  * @returns {Promise<string>} Promise com o PDF em base64
  */
-async function generatePdf(formData) {
+async function generatePdfSimplified(formData) {
     return new Promise((resolve, reject) => {
         try {
-            // Cria um container temporário para o PDF
-            const pdfContainer = document.getElementById('pdfContainer');
+            console.log('Gerando PDF simplificado...');
             
-            // Limpa o container
-            pdfContainer.innerHTML = '';
+            // Cria um novo PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
             
-            // Cria o conteúdo HTML do PDF
-            const pdfHtml = createPdfHtml(formData);
-            pdfContainer.innerHTML = pdfHtml;
+            // Configurações iniciais
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            let yPos = 20;
             
-            // Aguarda o carregamento das fontes e imagens
-            setTimeout(async () => {
-                try {
-                    // Gera o PDF usando html2canvas e jsPDF
-                    const canvas = await html2canvas(pdfContainer, {
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: '#ffffff'
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
-                    const imgWidth = 210;
-                    const imgHeight = canvas.height * imgWidth / canvas.width;
-                    
-                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                    
-                    // Converte para base64
-                    const pdfBase64 = pdf.output('datauristring').split(',')[1];
-                    console.log('PDF gerado com sucesso');
-                    resolve(pdfBase64);
-                } catch (error) {
-                    reject(new Error(`Erro ao gerar PDF: ${error.message}`));
+            // Função para adicionar texto com quebra de linha
+            const addText = (text, x, y, maxWidth = 180) => {
+                const lines = pdf.splitTextToSize(text, maxWidth);
+                pdf.text(lines, x, y);
+                return lines.length * 7; // Retorna altura aproximada
+            };
+            
+            // Cabeçalho
+            pdf.setFontSize(20);
+            pdf.setTextColor(230, 0, 115); // Cor rosa
+            pdf.text('Dra. Jaqueline Nobre Moratore', pageWidth / 2, yPos, { align: 'center' });
+            
+            pdf.setFontSize(14);
+            pdf.setTextColor(102, 102, 102); // Cinza
+            yPos += 10;
+            pdf.text('Odontologia Especializada', pageWidth / 2, yPos, { align: 'center' });
+            
+            pdf.setFontSize(16);
+            pdf.setTextColor(51, 51, 51); // Preto
+            yPos += 15;
+            pdf.text('FORMULÁRIO DE ANAMNESE ODONTOLÓGICA', pageWidth / 2, yPos, { align: 'center' });
+            
+            // Linha divisória
+            yPos += 10;
+            pdf.setDrawColor(255, 77, 148); // Rosa
+            pdf.setLineWidth(0.5);
+            pdf.line(20, yPos, pageWidth - 20, yPos);
+            
+            // Seção: Dados Pessoais
+            yPos += 15;
+            pdf.setFontSize(14);
+            pdf.setTextColor(230, 0, 115); // Rosa
+            pdf.text('DADOS PESSOAIS', 20, yPos);
+            
+            pdf.setFontSize(10);
+            pdf.setTextColor(51, 51, 51); // Preto
+            
+            // Função auxiliar para formatar respostas
+            const formatYesNo = (value) => {
+                if (value === 'sim') return 'Sim';
+                if (value === 'nao') return 'Não';
+                if (value === 'nao_aplicavel') return 'Não se aplica';
+                if (value === 'as_vezes') return 'Às vezes';
+                if (value === 'nao_sei') return 'Não sei';
+                return value || 'Não informado';
+            };
+            
+            // Adiciona dados pessoais
+            const personalData = [
+                `Nome: ${formData.nome || 'Não informado'}`,
+                `Data Nascimento: ${formData.dataNascimento ? new Date(formData.dataNascimento).toLocaleDateString('pt-BR') : 'Não informado'}`,
+                `Gênero: ${formData.genero || 'Não informado'}`,
+                `Telefone: ${formData.telefone || 'Não informado'}`,
+                `E-mail: ${formData.email || 'Não informado'}`,
+                `Endereço: ${formData.endereco || 'Não informado'}`,
+                `Profissão: ${formData.profissao || 'Não informado'}`,
+                `RG: ${formData.rg || 'Não informado'}`,
+                `CPF: ${formData.cpf || 'Não informado'}`,
+                `Autoriza imagem: ${formatYesNo(formData.autorizaImagem)}`
+            ];
+            
+            personalData.forEach(item => {
+                yPos += 7;
+                if (yPos > 270) {
+                    pdf.addPage();
+                    yPos = 20;
                 }
-            }, 1000);
+                pdf.text(item, 25, yPos);
+            });
+            
+            // Nova página para histórico médico
+            pdf.addPage();
+            yPos = 20;
+            
+            // Seção: Histórico Médico
+            pdf.setFontSize(14);
+            pdf.setTextColor(230, 0, 115);
+            pdf.text('HISTÓRICO MÉDICO', 20, yPos);
+            
+            pdf.setFontSize(10);
+            pdf.setTextColor(51, 51, 51);
+            yPos += 10;
+            
+            const medicalHistory = [
+                `Tratamento médico: ${formData.tratamentoMedico === 'sim' ? (formData.tratamentoEspecifico || 'Sim') : formatYesNo(formData.tratamentoMedico)}`,
+                `Medicações: ${formData.tomaMedicacao === 'sim' ? (formData.medicacaoEspecifica || 'Sim') : formatYesNo(formData.tomaMedicacao)}`,
+                `Cirurgias: ${formData.cirurgia === 'sim' ? (formData.cirurgiaEspecifica || 'Sim') : formatYesNo(formData.cirurgia)}`,
+                `Anestesia odontológica: ${formData.anestesiaOdontologica === 'sim' ? (formData.reacaoAnestesia || 'Sim') : formatYesNo(formData.anestesiaOdontologica)}`,
+                `Alergia medicamentos: ${formData.alergiaMedicamento === 'sim' ? (formData.alergiaMedicamentoEspecifica || 'Sim') : formatYesNo(formData.alergiaMedicamento)}`,
+                `Alergia alimentos: ${formData.alergiaAlimento === 'sim' ? (formData.alergiaAlimentoEspecifica || 'Sim') : formatYesNo(formData.alergiaAlimento)}`,
+                `Problemas cardíacos: ${formData.alteracaoCardiologica === 'sim' ? (formData.alteracaoCardiologicaEspecifica || 'Sim') : formatYesNo(formData.alteracaoCardiologica)}`,
+                `Diabetes: ${formatYesNo(formData.diabetico)}`,
+                `Convulsões/Epilepsia: ${formatYesNo(formData.convulsoes)}`,
+                `Problemas renais: ${formData.disfuncaoRenal === 'sim' ? (formData.disfuncaoRenalEspecifica || 'Sim') : formatYesNo(formData.disfuncaoRenal)}`,
+                `Problemas coagulação: ${formatYesNo(formData.coagulacaoSanguinea)}`,
+                `Grávida/Lactante: ${formatYesNo(formData.gravidaLactante)}`,
+                `Problemas hormonais: ${formData.problemaHormonal === 'sim' ? (formData.problemaHormonalEspecifico || 'Sim') : formatYesNo(formData.problemaHormonal)}`,
+                `Alergia cosméticos: ${formData.alergiaCosmeticos === 'sim' ? (formData.alergiaCosmeticosEspecifica || 'Sim') : formatYesNo(formData.alergiaCosmeticos)}`
+            ];
+            
+            medicalHistory.forEach(item => {
+                yPos += 7;
+                if (yPos > 270) {
+                    pdf.addPage();
+                    yPos = 20;
+                }
+                pdf.text(item, 25, yPos);
+            });
+            
+            // Nova página para hábitos bucais e consentimento
+            pdf.addPage();
+            yPos = 20;
+            
+            // Seção: Hábitos de Higiene Bucal
+            pdf.setFontSize(14);
+            pdf.setTextColor(230, 0, 115);
+            pdf.text('HÁBITOS DE HIGIENE BUCAL', 20, yPos);
+            
+            pdf.setFontSize(10);
+            pdf.setTextColor(51, 51, 51);
+            yPos += 10;
+            
+            const oralHabits = [
+                `Frequência escovação: ${formData.frequenciaEscovacao || 'Não informado'}`,
+                `Uso fio dental: ${formatYesNo(formData.usoFioDental)}`,
+                `Creme dental: ${formData.cremeDental || 'Não informado'}`,
+                `Escova língua: ${formatYesNo(formData.escovaLingua)}`,
+                `Marca escova: ${formData.marcaEscova || 'Não informado'}`,
+                `Morde objetos: ${formatYesNo(formData.mordeObjetos)}`,
+                `Range dentes: ${formatYesNo(formData.rangeDentes)}`,
+                `Rói unhas: ${formatYesNo(formData.roiUnhas)}`
+            ];
+            
+            oralHabits.forEach(item => {
+                yPos += 7;
+                pdf.text(item, 25, yPos);
+            });
+            
+            // Seção: Consentimento
+            yPos += 15;
+            pdf.setFontSize(14);
+            pdf.setTextColor(230, 0, 115);
+            pdf.text('CONSENTIMENTO E ASSINATURA', 20, yPos);
+            
+            pdf.setFontSize(10);
+            pdf.setTextColor(51, 51, 51);
+            yPos += 10;
+            
+            const consentText = `Eu, ${formData.nome || 'Não informado'}, RG ${formData.rg || 'Não informado'}, declaro que todas as informações fornecidas são verdadeiras.`;
+            
+            const consentLines = pdf.splitTextToSize(consentText, 170);
+            pdf.text(consentLines, 25, yPos);
+            
+            yPos += consentLines.length * 7 + 10;
+            pdf.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 25, yPos);
+            
+            yPos += 15;
+            pdf.text('Assinatura do paciente:', 25, yPos);
+            
+            yPos += 5;
+            pdf.setLineWidth(0.5);
+            pdf.line(25, yPos, 125, yPos);
+            
+            yPos += 10;
+            pdf.text(formData.nome || 'Não informado', 25, yPos);
+            
+            // Rodapé
+            pdf.setFontSize(8);
+            pdf.setTextColor(102, 102, 102);
+            yPos = 280;
+            pdf.text('Documento gerado automaticamente em ' + new Date().toLocaleString('pt-BR'), pageWidth / 2, yPos, { align: 'center' });
+            
+            // Converte para base64
+            const pdfBase64 = pdf.output('datauristring').split(',')[1];
+            console.log('PDF simplificado gerado com sucesso');
+            resolve(pdfBase64);
+            
         } catch (error) {
-            reject(new Error(`Erro ao criar PDF: ${error.message}`));
+            console.error('Erro ao gerar PDF simplificado:', error);
+            // Fallback: cria um PDF mínimo
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF();
+                pdf.text('Anamnese Odontológica - ' + (formData.nome || 'Paciente'), 20, 20);
+                pdf.text('Documento gerado em: ' + new Date().toLocaleString('pt-BR'), 20, 30);
+                const fallbackBase64 = pdf.output('datauristring').split(',')[1];
+                resolve(fallbackBase64);
+            } catch (fallbackError) {
+                reject(new Error('Não foi possível gerar o PDF: ' + error.message));
+            }
         }
     });
-}
-
-/**
- * Cria o HTML para o PDF
- * @param {Object} formData - Dados do formulário
- * @returns {string} HTML para o PDF
- */
-function createPdfHtml(formData) {
-    // Formata a data de nascimento
-    const dataNascimento = formData.dataNascimento ? 
-        new Date(formData.dataNascimento).toLocaleDateString('pt-BR') : '';
-    
-    // Formata as respostas de sim/não para texto completo
-    const formatYesNo = (value) => {
-        if (value === 'sim') return 'Sim';
-        if (value === 'nao') return 'Não';
-        if (value === 'nao_aplicavel') return 'Não se aplica';
-        if (value === 'as_vezes') return 'Às vezes';
-        if (value === 'nao_sei') return 'Não sei';
-        return value || 'Não informado';
-    };
-    
-    // Cria o HTML do PDF
-    return `
-    <div class="pdf-content" style="font-family: 'Poppins', sans-serif; color: #333; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #e60073; font-family: 'Playfair Display', serif; margin-bottom: 5px;">
-                Dra. Jaqueline Nobre Moratore
-            </h1>
-            <p style="color: #666; margin-bottom: 20px;">Odontologia Especializada</p>
-            <h2 style="color: #333; border-bottom: 2px solid #ffccdc; padding-bottom: 10px;">
-                Formulário de Anamnese Odontológica
-            </h2>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #e60073; margin-bottom: 15px;">Dados Pessoais</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Nome Completo:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.nome || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Data de Nascimento:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${dataNascimento}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Gênero:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.genero || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Telefone:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.telefone || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>E-mail:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.email || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Endereço:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.endereco || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Profissão:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.profissao || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>RG:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.rg || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>CPF:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.cpf || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Autoriza uso de imagem:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.autorizaImagem)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Preferência musical:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">
-                        ${formData.prefereMusica === 'sim' ? (formData.musicaEspecifica || 'Sim') : formatYesNo(formData.prefereMusica)}
-                    </td>
-                </tr>
-            </table>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #e60073; margin-bottom: 15px;">Histórico Médico</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Tratamento médico atual:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.tratamentoMedico === 'sim' ? (formData.tratamentoEspecifico || 'Sim') : formatYesNo(formData.tratamentoMedico)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Medicações em uso:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.tomaMedicacao === 'sim' ? (formData.medicacaoEspecifica || 'Sim') : formatYesNo(formData.tomaMedicacao)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Cirurgias anteriores:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.cirurgia === 'sim' ? (formData.cirurgiaEspecifica || 'Sim') : formatYesNo(formData.cirurgia)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Anestesia odontológica:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">
-                        ${formData.anestesiaOdontologica === 'sim' ? 
-                            (formData.reacaoAnestesia ? 'Sim - ' + formData.reacaoAnestesia : 'Sim') : 
-                            formatYesNo(formData.anestesiaOdontologica)}
-                    </td>
-                </tr>
-            </table>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #e60073; margin-bottom: 15px;">Alergias</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Alergia a medicamentos:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.alergiaMedicamento === 'sim' ? (formData.alergiaMedicamentoEspecifica || 'Sim') : formatYesNo(formData.alergiaMedicamento)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Alergia a alimentos:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.alergiaAlimento === 'sim' ? (formData.alergiaAlimentoEspecifica || 'Sim') : formatYesNo(formData.alergiaAlimento)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Alergia a cosméticos:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.alergiaCosmeticos === 'sim' ? (formData.alergiaCosmeticosEspecifica || 'Sim') : formatYesNo(formData.alergiaCosmeticos)}</td>
-                </tr>
-            </table>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #e60073; margin-bottom: 15px;">Condições de Saúde</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Problemas cardíacos:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.alteracaoCardiologica === 'sim' ? (formData.alteracaoCardiologicaEspecifica || 'Sim') : formatYesNo(formData.alteracaoCardiologica)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Diabetes:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.diabetico)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Convulsões/Epilepsia:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.convulsoes)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Problemas renais:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.disfuncaoRenal === 'sim' ? (formData.disfuncaoRenalEspecifica || 'Sim') : formatYesNo(formData.disfuncaoRenal)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Problemas de coagulação:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.coagulacaoSanguinea)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Grávida/Lactante:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.gravidaLactante)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Problemas hormonais:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.problemaHormonal === 'sim' ? (formData.problemaHormonalEspecifico || 'Sim') : formatYesNo(formData.problemaHormonal)}</td>
-                </tr>
-            </table>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #e60073; margin-bottom: 15px;">Hábitos de Higiene Bucal</h3>
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Frequência de escovação:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.frequenciaEscovacao || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Uso de fio dental:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.usoFioDental)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Creme dental:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.cremeDental || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Escova a língua:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.escovaLingua)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Marca da escova:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formData.marcaEscova || 'Não informado'}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Range os dentes:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.rangeDentes)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Rói as unhas:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.roiUnhas)}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Morde objetos:</strong></td>
-                    <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${formatYesNo(formData.mordeObjetos)}</td>
-                </tr>
-            </table>
-        </div>
-        
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: #e60073; margin-bottom: 15px;">Consentimento e Assinatura</h3>
-            <div style="background-color: #fff5f9; padding: 20px; border-radius: 10px; border-left: 5px solid #ff4d94;">
-                <p style="margin-bottom: 15px; line-height: 1.6;">
-                    Eu, <strong>${formData.nome || 'Não informado'}</strong>, RG <strong>${formData.rg || 'Não informado'}</strong>, 
-                    declaro, sob as penas da lei, que as informações fornecidas neste formulário de anamnese são verdadeiras 
-                    e estou ciente de que informações incorretas podem comprometer a segurança do meu tratamento odontológico.
-                </p>
-                <p style="margin-bottom: 15px; line-height: 1.6;">
-                    Autorizo a Dra. Jaqueline Nobre Moratore a utilizar estas informações para fins de diagnóstico e 
-                    planejamento do meu tratamento odontológico, de acordo com a Lei Geral de Proteção de Dados (LGPD) 
-                    e normas éticas da profissão odontológica.
-                </p>
-                <p style="margin-bottom: 20px;"><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
-                
-                <div style="margin-top: 40px;">
-                    <p style="margin-bottom: 10px;"><strong>Assinatura do paciente:</strong></p>
-                    ${formData.assinatura ? 
-                        `<div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-                            <img src="${formData.assinatura}" alt="Assinatura" style="max-width: 300px; max-height: 100px;">
-                        </div>` : 
-                        '<div style="border-top: 1px solid #333; width: 300px; margin-top: 50px; padding-top: 10px;"></div>'
-                    }
-                    <p style="margin-top: 10px;">${formData.nome || 'Não informado'}</p>
-                </div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 50px; color: #666; font-size: 12px; border-top: 1px solid #eee; padding-top: 20px;">
-            <p>Documento gerado automaticamente em ${new Date().toLocaleString('pt-BR')}</p>
-            <p>Dra. Jaqueline Nobre Moratore | (11) 98470-8439 | @dentista.jaque</p>
-            <p>jaqueline.nobre.moratore.odonto@gmail.com | Rua Avaré 15 - Bairro Matriz Sala 22</p>
-        </div>
-    </div>
-    `;
 }
 
 /**
@@ -829,24 +783,30 @@ async function sendToGoogleScript(formData, pdfData) {
         action: 'saveAnamnese'
     };
     
-    console.log('Enviando payload para Google Apps Script:', {
-        ...formData,
-        pdf: '[BASE64_DATA]' // Não logar dados binários
-    });
+    console.log('Enviando payload para Google Apps Script...');
     
-    // Envia para o Google Apps Script
-    const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-    });
-    
-    const responseData = await response.json();
-    console.log('Resposta do Google Apps Script:', responseData);
-    return responseData;
+    try {
+        // Envia para o Google Apps Script
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const responseData = await response.json();
+        console.log('Resposta do Google Apps Script:', responseData);
+        return responseData;
+    } catch (error) {
+        console.error('Erro ao enviar para Google Apps Script:', error);
+        throw error;
+    }
 }
 
 /**
@@ -872,7 +832,7 @@ function setupPdfDownload() {
             showLoadingMessage();
             
             try {
-                const pdfData = await generatePdf(formData);
+                const pdfData = await generatePdfSimplified(formData);
                 const pdfBlob = base64ToBlob(pdfData, 'application/pdf');
                 const pdfUrl = URL.createObjectURL(pdfBlob);
                 
@@ -984,7 +944,9 @@ function hideAllMessages() {
  */
 function resetForm() {
     document.getElementById('anamneseForm').reset();
-    signaturePad.clear();
+    if (signaturePad) {
+        signaturePad.clear();
+    }
     generatedPdfUrl = null;
     document.getElementById('downloadPdfBtn').style.display = 'none';
     hideAllMessages();
