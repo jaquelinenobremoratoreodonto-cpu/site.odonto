@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
 </head>
@@ -27,6 +27,7 @@
             <div class="header-info">
                 <p><i class="fas fa-shield-alt"></i> Formulário Seguro de Anamnese</p>
                 <p><i class="fas fa-mobile-alt"></i> Otimizado para Celular</p>
+                <p><i class="fas fa-clock"></i> Preenchimento: 5-10 minutos</p>
             </div>
         </header>
 
@@ -36,8 +37,8 @@
             <div class="progress-steps">
                 <div class="step active" data-step="1"><span>1</span> Dados Pessoais</div>
                 <div class="step" data-step="2"><span>2</span> Saúde Geral</div>
-                <div class="step" data-step="3"><span>3</span> Saúde Bucal</div>
-                <div class="step" data-step="4"><span>4</span> Assinatura</div>
+                <div class="step" data-step="3"><span>3</span> Hábitos Bucais</div>
+                <div class="step" data-step="4"><span>4</span> Confirmação</div>
             </div>
         </div>
 
@@ -45,8 +46,10 @@
         <form id="anamneseForm" class="form-container">
             <!-- Seção 1: Dados Pessoais -->
             <section class="form-section active" id="section1">
-                <h2><i class="fas fa-user-circle"></i> Dados Pessoais</h2>
-                <p class="section-description">Preencha seus dados pessoais para identificação</p>
+                <div class="section-header">
+                    <h2><i class="fas fa-user-circle"></i> Dados Pessoais</h2>
+                    <p class="section-description">Informações básicas para identificação e contato</p>
+                </div>
                 
                 <div class="form-grid">
                     <div class="form-group full-width">
@@ -75,9 +78,16 @@
 
                     <div class="form-group">
                         <label for="telefone">Telefone <span class="required">*</span></label>
-                        <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}">
+                        <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999">
                         <div class="input-icon"><i class="fas fa-phone-alt"></i></div>
                         <small class="hint">Formato: (11) 99999-9999</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required placeholder="seu@email.com">
+                        <div class="input-icon"><i class="fas fa-envelope"></i></div>
+                        <small class="hint">Enviaremos uma cópia para este email</small>
                     </div>
 
                     <div class="form-group full-width">
@@ -100,9 +110,53 @@
 
                     <div class="form-group">
                         <label for="cpf">CPF <span class="required">*</span></label>
-                        <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}">
+                        <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00">
                         <div class="input-icon"><i class="fas fa-id-card"></i></div>
                         <small class="hint">Formato: 000.000.000-00</small>
+                    </div>
+                </div>
+
+                <!-- Preferências e Consentimentos -->
+                <div class="preferences-section">
+                    <h3><i class="fas fa-heart"></i> Preferências e Consentimentos</h3>
+                    
+                    <div class="form-group radio-group">
+                        <label>Tem preferência por algum tipo de música durante o atendimento? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="preferenciaMusica" value="Sim" data-toggle="preferenciaMusicaQual">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="preferenciaMusica" value="Não" data-toggle="preferenciaMusicaQual" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group conditional hidden" id="preferenciaMusicaQual">
+                        <label for="preferenciaMusicaQualInput">Qual tipo de música você prefere?</label>
+                        <input type="text" id="preferenciaMusicaQualInput" name="preferenciaMusicaQual" placeholder="Ex: Clássica, pop, instrumental...">
+                        <div class="input-icon"><i class="fas fa-music"></i></div>
+                    </div>
+
+                    <div class="form-group radio-group">
+                        <label>Você autoriza o uso de sua imagem para fins educativos e de divulgação? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="autorizaImagem" value="Sim">
+                                <span class="radio-custom"></span>
+                                Sim, autorizo
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="autorizaImagem" value="Não" checked>
+                                <span class="radio-custom"></span>
+                                Não autorizo
+                            </label>
+                        </div>
+                        <small class="hint">Sua imagem pode ser utilizada em materiais educativos, sempre preservando sua identidade</small>
                     </div>
                 </div>
 
@@ -113,115 +167,333 @@
 
             <!-- Seção 2: Saúde Geral -->
             <section class="form-section" id="section2">
-                <h2><i class="fas fa-heartbeat"></i> Saúde Geral</h2>
-                <p class="section-description">Informações sobre sua saúde para um atendimento seguro</p>
+                <div class="section-header">
+                    <h2><i class="fas fa-heartbeat"></i> Saúde Geral</h2>
+                    <p class="section-description">Informações sobre sua saúde para um atendimento seguro</p>
+                </div>
                 
-                <div class="conditional-group">
-                    <div class="form-group radio-group">
-                        <label>Está em algum tratamento médico? <span class="required">*</span></label>
-                        <div class="radio-options">
-                            <label class="radio-label">
-                                <input type="radio" name="tratamentoMedico" value="Sim" data-toggle="tratamentoQual">
-                                <span class="radio-custom"></span>
-                                Sim
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="tratamentoMedico" value="Não" data-toggle="tratamentoQual" checked>
-                                <span class="radio-custom"></span>
-                                Não
-                            </label>
-                        </div>
-                    </div>
+                <!-- Grupo 1: Tratamentos e Medicações -->
+                <div class="question-group">
+                    <h3><i class="fas fa-stethoscope"></i> Tratamentos e Medicações</h3>
                     
-                    <div class="form-group conditional hidden" id="tratamentoQual">
-                        <label for="tratamentoQualInput">Qual tratamento médico?</label>
-                        <input type="text" id="tratamentoQualInput" name="tratamentoQual" placeholder="Descreva o tratamento">
-                        <div class="input-icon"><i class="fas fa-stethoscope"></i></div>
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Está em algum tratamento médico atualmente? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="tratamentoMedico" value="Sim" data-toggle="tratamentoQual">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="tratamentoMedico" value="Não" data-toggle="tratamentoQual" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="tratamentoQual">
+                            <label for="tratamentoQualInput">Qual tratamento?</label>
+                            <textarea id="tratamentoQualInput" name="tratamentoQual" placeholder="Descreva o tratamento, duração e médico responsável" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-file-medical"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Toma alguma medicação regularmente? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="tomaMedicacao" value="Sim" data-toggle="medicacaoQual">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="tomaMedicacao" value="Não" data-toggle="medicacaoQual" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="medicacaoQual">
+                            <label for="medicacaoQualInput">Qual medicação? (nome e dosagem)</label>
+                            <textarea id="medicacaoQualInput" name="medicacaoQual" placeholder="Ex: Losartana 50mg, 1x ao dia" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-pills"></i></div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="conditional-group">
-                    <div class="form-group radio-group">
-                        <label>Toma alguma medicação? <span class="required">*</span></label>
-                        <div class="radio-options">
-                            <label class="radio-label">
-                                <input type="radio" name="tomaMedicacao" value="Sim" data-toggle="medicacaoQual">
-                                <span class="radio-custom"></span>
-                                Sim
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="tomaMedicacao" value="Não" data-toggle="medicacaoQual" checked>
-                                <span class="radio-custom"></span>
-                                Não
-                            </label>
-                        </div>
-                    </div>
+                <!-- Grupo 2: Histórico Cirúrgico e Anestésico -->
+                <div class="question-group">
+                    <h3><i class="fas fa-procedures"></i> Histórico Cirúrgico e Anestésico</h3>
                     
-                    <div class="form-group conditional hidden" id="medicacaoQual">
-                        <label for="medicacaoQualInput">Qual medicação?</label>
-                        <input type="text" id="medicacaoQualInput" name="medicacaoQual" placeholder="Nome da medicação">
-                        <div class="input-icon"><i class="fas fa-pills"></i></div>
-                    </div>
-                </div>
-
-                <!-- Continuação dos campos condicionais -->
-                <!-- A estrutura se repete para todos os campos condicionais -->
-                <!-- Para economizar espaço, vou mostrar apenas alguns exemplos -->
-
-                <div class="form-group radio-group">
-                    <label>Já se submeteu a alguma cirurgia? <span class="required">*</span></label>
-                    <div class="radio-options">
-                        <label class="radio-label">
-                            <input type="radio" name="cirurgia" value="Sim" data-toggle="cirurgiaQual">
-                            <span class="radio-custom"></span>
-                            Sim
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="cirurgia" value="Não" data-toggle="cirurgiaQual" checked>
-                            <span class="radio-custom"></span>
-                            Não
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group conditional hidden" id="cirurgiaQual">
-                    <label for="cirurgiaQualInput">Qual cirurgia?</label>
-                    <input type="text" id="cirurgiaQualInput" name="cirurgiaQual" placeholder="Descreva a cirurgia">
-                    <div class="input-icon"><i class="fas fa-procedures"></i></div>
-                </div>
-
-                <!-- Outros campos de saúde geral seguem o mesmo padrão -->
-
-                <div class="form-grid">
-                    <div class="form-group radio-group">
-                        <label>Possui alergia a produtos cosméticos? <span class="required">*</span></label>
-                        <div class="radio-options">
-                            <label class="radio-label">
-                                <input type="radio" name="alergiaCosmeticos" value="Sim" data-toggle="alergiaCosmeticosQual">
-                                <span class="radio-custom"></span>
-                                Sim
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="alergiaCosmeticos" value="Não" data-toggle="alergiaCosmeticosQual" checked>
-                                <span class="radio-custom"></span>
-                                Não
-                            </label>
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Já se submeteu a alguma cirurgia? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="cirurgia" value="Sim" data-toggle="cirurgiaQual">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="cirurgia" value="Não" data-toggle="cirurgiaQual" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="cirurgiaQual">
+                            <label for="cirurgiaQualInput">Qual cirurgia e quando foi realizada?</label>
+                            <textarea id="cirurgiaQualInput" name="cirurgiaQual" placeholder="Descreva a cirurgia e data aproximada" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-hospital"></i></div>
                         </div>
                     </div>
 
-                    <div class="form-group radio-group">
-                        <label>Você autoriza uso de imagem? <span class="required">*</span></label>
-                        <div class="radio-options">
-                            <label class="radio-label">
-                                <input type="radio" name="autorizaImagem" value="Sim">
-                                <span class="radio-custom"></span>
-                                Sim
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="autorizaImagem" value="Não" checked>
-                                <span class="radio-custom"></span>
-                                Não
-                            </label>
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Já se submeteu a anestesia odontológica? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="anestesiaOdontologica" value="Sim" data-toggle="anestesiaReacao">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="anestesiaOdontologica" value="Não" data-toggle="anestesiaReacao" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="anestesiaReacao">
+                            <label for="anestesiaReacaoInput">Teve alguma reação à anestesia?</label>
+                            <textarea id="anestesiaReacaoInput" name="anestesiaReacao" placeholder="Descreva qualquer reação adversa" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-allergy"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grupo 3: Alergias -->
+                <div class="question-group">
+                    <h3><i class="fas fa-allergy"></i> Alergias</h3>
+                    
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Possui alergia a algum medicamento ou anestésico? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="alergiaMedicamento" value="Sim" data-toggle="alergiaMedicamentoQual">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="alergiaMedicamento" value="Não" data-toggle="alergiaMedicamentoQual" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="alergiaMedicamentoQual">
+                            <label for="alergiaMedicamentoQualInput">A qual medicamento ou anestésico?</label>
+                            <textarea id="alergiaMedicamentoQualInput" name="alergiaMedicamentoQual" placeholder="Nome do medicamento e tipo de reação" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Possui alergia a algum alimento? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="alergiaAlimento" value="Sim" data-toggle="alergiaAlimentoQual">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="alergiaAlimento" value="Não" data-toggle="alergiaAlimentoQual" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="alergiaAlimentoQual">
+                            <label for="alergiaAlimentoQualInput">A qual alimento?</label>
+                            <textarea id="alergiaAlimentoQualInput" name="alergiaAlimentoQual" placeholder="Nome do alimento e tipo de reação" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-utensils"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="conditional-group">
+                        <div class="form-group radio-group">
+                            <label>Possui alergia a produtos cosméticos? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="alergiaCosmeticos" value="Sim" data-toggle="alergiaCosmeticosQual">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="alergiaCosmeticos" value="Não" data-toggle="alergiaCosmeticosQual" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group conditional hidden" id="alergiaCosmeticosQual">
+                            <label for="alergiaCosmeticosQualInput">A qual produto cosmético?</label>
+                            <textarea id="alergiaCosmeticosQualInput" name="alergiaCosmeticosQual" placeholder="Nome do produto e tipo de reação" rows="2"></textarea>
+                            <div class="input-icon"><i class="fas fa-spray-can"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grupo 4: Condições de Saúde -->
+                <div class="question-group">
+                    <h3><i class="fas fa-file-medical-alt"></i> Condições de Saúde</h3>
+                    
+                    <div class="form-grid">
+                        <div class="conditional-group">
+                            <div class="form-group radio-group">
+                                <label>Possui alguma alteração cardiológica? <span class="required">*</span></label>
+                                <div class="radio-options">
+                                    <label class="radio-label">
+                                        <input type="radio" name="alteracaoCardiologica" value="Sim" data-toggle="alteracaoCardiologicaQual">
+                                        <span class="radio-custom"></span>
+                                        Sim
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="alteracaoCardiologica" value="Não" data-toggle="alteracaoCardiologicaQual" checked>
+                                        <span class="radio-custom"></span>
+                                        Não
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group conditional hidden" id="alteracaoCardiologicaQual">
+                                <label for="alteracaoCardiologicaQualInput">Qual alteração?</label>
+                                <input type="text" id="alteracaoCardiologicaQualInput" name="alteracaoCardiologicaQual" placeholder="Ex: Hipertensão, arritmia...">
+                                <div class="input-icon"><i class="fas fa-heart"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group radio-group">
+                            <label>É diabético? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="diabetico" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="diabetico" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group radio-group">
+                            <label>Tem convulsões ou epilepsia? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="convulsoes" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="convulsoes" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-group">
+                            <div class="form-group radio-group">
+                                <label>Tem alguma disfunção renal? <span class="required">*</span></label>
+                                <div class="radio-options">
+                                    <label class="radio-label">
+                                        <input type="radio" name="disfuncaoRenal" value="Sim" data-toggle="disfuncaoRenalQual">
+                                        <span class="radio-custom"></span>
+                                        Sim
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="disfuncaoRenal" value="Não" data-toggle="disfuncaoRenalQual" checked>
+                                        <span class="radio-custom"></span>
+                                        Não
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group conditional hidden" id="disfuncaoRenalQual">
+                                <label for="disfuncaoRenalQualInput">Qual disfunção?</label>
+                                <input type="text" id="disfuncaoRenalQualInput" name="disfuncaoRenalQual" placeholder="Descreva a disfunção">
+                                <div class="input-icon"><i class="fas fa-kidneys"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group radio-group">
+                            <label>Tem problemas de coagulação sanguínea? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="coagulacao" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="coagulacao" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group radio-group">
+                            <label>Grávida ou lactante? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="gravidaLactante" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gravidaLactante" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-group">
+                            <div class="form-group radio-group">
+                                <label>Possui algum problema hormonal? <span class="required">*</span></label>
+                                <div class="radio-options">
+                                    <label class="radio-label">
+                                        <input type="radio" name="problemaHormonal" value="Sim" data-toggle="problemaHormonalQual">
+                                        <span class="radio-custom"></span>
+                                        Sim
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="problemaHormonal" value="Não" data-toggle="problemaHormonalQual" checked>
+                                        <span class="radio-custom"></span>
+                                        Não
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group conditional hidden" id="problemaHormonalQual">
+                                <label for="problemaHormonalQualInput">Qual problema hormonal?</label>
+                                <input type="text" id="problemaHormonalQualInput" name="problemaHormonalQual" placeholder="Descreva o problema">
+                                <div class="input-icon"><i class="fas fa-balance-scale"></i></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -232,136 +504,142 @@
                 </div>
             </section>
 
-            <!-- Seção 3: Saúde Bucal -->
+            <!-- Seção 3: Hábitos Bucais -->
             <section class="form-section" id="section3">
-                <h2><i class="fas fa-tooth"></i> Saúde Bucal</h2>
-                <p class="section-description">Hábitos e cuidados com sua saúde bucal</p>
+                <div class="section-header">
+                    <h2><i class="fas fa-tooth"></i> Hábitos de Saúde Bucal</h2>
+                    <p class="section-description">Informações sobre seus cuidados diários e hábitos</p>
+                </div>
                 
-                <div class="form-group radio-group">
-                    <label>Tem preferência por algum tipo de música? <span class="required">*</span></label>
-                    <div class="radio-options">
-                        <label class="radio-label">
-                            <input type="radio" name="preferenciaMusica" value="Sim" data-toggle="preferenciaMusicaQual">
-                            <span class="radio-custom"></span>
-                            Sim
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="preferenciaMusica" value="Não" data-toggle="preferenciaMusicaQual" checked>
-                            <span class="radio-custom"></span>
-                            Não
-                        </label>
+                <!-- Grupo 1: Higiene Bucal -->
+                <div class="question-group">
+                    <h3><i class="fas fa-brush"></i> Higiene Bucal</h3>
+                    
+                    <div class="form-group">
+                        <label for="frequenciaEscovacao">Com qual frequência você escova os dentes? <span class="required">*</span></label>
+                        <select id="frequenciaEscovacao" name="frequenciaEscovacao" required>
+                            <option value="">Selecione</option>
+                            <option value="1 vez ao dia">1 vez ao dia</option>
+                            <option value="2 vezes ao dia">2 vezes ao dia</option>
+                            <option value="3 vezes ao dia">3 vezes ao dia</option>
+                            <option value="Mais de 3 vezes ao dia">Mais de 3 vezes ao dia</option>
+                            <option value="Só quando lembro">Só quando lembro</option>
+                            <option value="Após cada refeição">Após cada refeição</option>
+                        </select>
+                        <div class="input-icon"><i class="fas fa-brush"></i></div>
                     </div>
-                </div>
 
-                <div class="form-group conditional hidden" id="preferenciaMusicaQual">
-                    <label for="preferenciaMusicaQualInput">Qual tipo de música?</label>
-                    <input type="text" id="preferenciaMusicaQualInput" name="preferenciaMusicaQual" placeholder="Ex: Clássica, pop, rock...">
-                    <div class="input-icon"><i class="fas fa-music"></i></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="frequenciaEscovacao">Com qual frequência você escova os dentes? <span class="required">*</span></label>
-                    <select id="frequenciaEscovacao" name="frequenciaEscovacao" required>
-                        <option value="">Selecione</option>
-                        <option value="1 vez ao dia">1 vez ao dia</option>
-                        <option value="2 vezes ao dia">2 vezes ao dia</option>
-                        <option value="3 vezes ao dia">3 vezes ao dia</option>
-                        <option value="Mais de 3 vezes ao dia">Mais de 3 vezes ao dia</option>
-                        <option value="Só quando lembro">Só quando lembro</option>
-                    </select>
-                    <div class="input-icon"><i class="fas fa-brush"></i></div>
-                </div>
-
-                <div class="form-group radio-group">
-                    <label>Faz uso de fio dental? <span class="required">*</span></label>
-                    <div class="radio-options">
-                        <label class="radio-label">
-                            <input type="radio" name="usoFioDental" value="Sim">
-                            <span class="radio-custom"></span>
-                            Sim
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="usoFioDental" value="Não" checked>
-                            <span class="radio-custom"></span>
-                            Não
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="cremeDental">Qual creme dental usa?</label>
-                    <input type="text" id="cremeDental" name="cremeDental" placeholder="Marca do creme dental">
-                    <div class="input-icon"><i class="fas fa-pump-soap"></i></div>
-                </div>
-
-                <div class="form-group radio-group">
-                    <label>Escova regularmente a língua? <span class="required">*</span></label>
-                    <div class="radio-options">
-                        <label class="radio-label">
-                            <input type="radio" name="escovaLingua" value="Sim">
-                            <span class="radio-custom"></span>
-                            Sim
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="escovaLingua" value="Não" checked>
-                            <span class="radio-custom"></span>
-                            Não
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="marcaEscova">Qual a marca da sua escova?</label>
-                    <input type="text" id="marcaEscova" name="marcaEscova" placeholder="Marca da escova dental">
-                    <div class="input-icon"><i class="fas fa-toothbrush"></i></div>
-                </div>
-
-                <div class="form-grid">
                     <div class="form-group radio-group">
-                        <label>Morde objetos? <span class="required">*</span></label>
+                        <label>Faz uso de fio dental? <span class="required">*</span></label>
                         <div class="radio-options">
                             <label class="radio-label">
-                                <input type="radio" name="mordeObjetos" value="Sim">
+                                <input type="radio" name="usoFioDental" value="Sim">
                                 <span class="radio-custom"></span>
-                                Sim
+                                Sim, diariamente
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="mordeObjetos" value="Não" checked>
+                                <input type="radio" name="usoFioDental" value="Às vezes">
+                                <span class="radio-custom"></span>
+                                Às vezes
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="usoFioDental" value="Não" checked>
+                                <span class="radio-custom"></span>
+                                Não uso
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cremeDental">Qual creme dental você normalmente usa?</label>
+                        <input type="text" id="cremeDental" name="cremeDental" placeholder="Marca e tipo do creme dental">
+                        <div class="input-icon"><i class="fas fa-pump-soap"></i></div>
+                    </div>
+
+                    <div class="form-group radio-group">
+                        <label>Escova regularmente a língua? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="escovaLingua" value="Sim">
+                                <span class="radio-custom"></span>
+                                Sim, sempre
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="escovaLingua" value="Às vezes">
+                                <span class="radio-custom"></span>
+                                Às vezes
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="escovaLingua" value="Não" checked>
                                 <span class="radio-custom"></span>
                                 Não
                             </label>
                         </div>
                     </div>
 
-                    <div class="form-group radio-group">
-                        <label>Range os dentes? <span class="required">*</span></label>
-                        <div class="radio-options">
-                            <label class="radio-label">
-                                <input type="radio" name="rangeDentes" value="Sim">
-                                <span class="radio-custom"></span>
-                                Sim
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="rangeDentes" value="Não" checked>
-                                <span class="radio-custom"></span>
-                                Não
-                            </label>
-                        </div>
+                    <div class="form-group">
+                        <label for="marcaEscova">Qual a marca/modelo da sua escova de dentes?</label>
+                        <input type="text" id="marcaEscova" name="marcaEscova" placeholder="Marca e tipo da escova">
+                        <div class="input-icon"><i class="fas fa-toothbrush"></i></div>
                     </div>
+                </div>
 
-                    <div class="form-group radio-group">
-                        <label>Rói as unhas? <span class="required">*</span></label>
-                        <div class="radio-options">
-                            <label class="radio-label">
-                                <input type="radio" name="roiUnhas" value="Sim">
-                                <span class="radio-custom"></span>
-                                Sim
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="roiUnhas" value="Não" checked>
-                                <span class="radio-custom"></span>
-                                Não
-                            </label>
+                <!-- Grupo 2: Hábitos Parafuncionais -->
+                <div class="question-group">
+                    <h3><i class="fas fa-teeth"></i> Hábitos Parafuncionais</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group radio-group">
+                            <label>Morde objetos (caneta, lápis, unhas, etc.)? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="mordeObjetos" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="mordeObjetos" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group radio-group">
+                            <label>Range ou aperta os dentes? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="rangeDentes" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="rangeDentes" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="rangeDentes" value="Não sei">
+                                    <span class="radio-custom"></span>
+                                    Não sei
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group radio-group">
+                            <label>Rói as unhas? <span class="required">*</span></label>
+                            <div class="radio-options">
+                                <label class="radio-label">
+                                    <input type="radio" name="roiUnhas" value="Sim">
+                                    <span class="radio-custom"></span>
+                                    Sim
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="roiUnhas" value="Não" checked>
+                                    <span class="radio-custom"></span>
+                                    Não
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -374,9 +652,12 @@
 
             <!-- Seção 4: Confirmação e Assinatura -->
             <section class="form-section" id="section4">
-                <h2><i class="fas fa-file-signature"></i> Confirmação e Assinatura</h2>
-                <p class="section-description">Revise suas informações e assine digitalmente</p>
+                <div class="section-header">
+                    <h2><i class="fas fa-file-signature"></i> Confirmação e Assinatura</h2>
+                    <p class="section-description">Revise suas informações e assine digitalmente o formulário</p>
+                </div>
                 
+                <!-- Resumo das Informações -->
                 <div class="review-summary">
                     <h3><i class="fas fa-clipboard-check"></i> Resumo das Informações</h3>
                     <div class="review-content" id="reviewContent">
@@ -385,9 +666,10 @@
                     <button type="button" class="btn-edit" id="editForm"><i class="fas fa-edit"></i> Editar Informações</button>
                 </div>
 
+                <!-- Assinatura Digital -->
                 <div class="signature-container">
                     <h3><i class="fas fa-signature"></i> Assinatura Digital</h3>
-                    <p class="signature-info">Assine na área abaixo usando seu mouse ou dedo (em dispositivos touch)</p>
+                    <p class="signature-info">Assine na área abaixo usando seu mouse ou dedo (em dispositivos touch). Sua assinatura será incluída no PDF.</p>
                     
                     <div class="signature-wrapper">
                         <canvas id="signatureCanvas" width="600" height="200"></canvas>
@@ -395,24 +677,45 @@
                             <button type="button" id="clearSignature" class="btn-clear"><i class="fas fa-eraser"></i> Limpar</button>
                             <button type="button" id="undoSignature" class="btn-undo"><i class="fas fa-undo"></i> Desfazer</button>
                         </div>
+                        <p class="signature-hint">Assine dentro da área destacada</p>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="confirmacaoIdentidade">Confirmação de Identidade <span class="required">*</span></label>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="confirmacaoIdentidade" name="confirmacaoIdentidade" required>
-                            <label for="confirmacaoIdentidade" class="checkbox-label">
-                                <span class="checkbox-custom"></span>
-                                Eu, <span id="nomeConfirma"></span>, confirmo que todas as informações fornecidas são verdadeiras e que sou eu mesmo(a) preenchendo este formulário.
-                            </label>
+                    <!-- Confirmação de Identidade -->
+                    <div class="confirmation-container">
+                        <h4><i class="fas fa-user-check"></i> Confirmação de Identidade</h4>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="confirmacaoIdentidade" name="confirmacaoIdentidade" required>
+                                <label for="confirmacaoIdentidade" class="checkbox-label">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">
+                                        Eu, <strong id="nomeConfirma"></strong>, confirmo que todas as informações fornecidas neste formulário são verdadeiras e completas. Declaro que sou eu mesmo(a) preenchendo este formulário e autorizo o processamento dos meus dados para fins de avaliação odontológica.
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="lgpdConsentimento" name="lgpdConsentimento" required>
+                                <label for="lgpdConsentimento" class="checkbox-label">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">
+                                        Concordo com o processamento dos meus dados pessoais de acordo com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018). Estou ciente de que meus dados serão utilizados exclusivamente para fins odontológicos e de saúde.
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Termo de Consentimento -->
                     <div class="consent-container">
-                        <h4><i class="fas fa-shield-alt"></i> Termo de Consentimento</h4>
+                        <h4><i class="fas fa-file-contract"></i> Termo de Consentimento</h4>
                         <div class="consent-text">
-                            <p>Declaro que as informações fornecidas são verdadeiras e autorizo a Dra. Jaqueline Nobre Moratore a utilizá-las para fins de avaliação odontológica e tratamento.</p>
-                            <p>Concordo com o processamento dos meus dados pessoais de acordo com a Lei Geral de Proteção de Dados (LGPD).</p>
+                            <p>Declaro que as informações fornecidas são verdadeiras e autorizo a Dra. Jaqueline Nobre Moratore a utilizá-las para fins de avaliação odontológica, planejamento e execução de tratamento.</p>
+                            <p>Concordo que este formulário constitui um documento válido para fins clínicos e que a assinatura digital tem o mesmo valor legal que uma assinatura física.</p>
+                            <p>Data de preenchimento: <span id="dataPreenchimento"></span></p>
                         </div>
                     </div>
                 </div>
@@ -435,12 +738,17 @@
                     <div class="success-animation">
                         <i class="fas fa-tooth success-icon"></i>
                     </div>
-                    <p>Seu formulário de anamnese foi enviado com sucesso para a Dra. Jaqueline.</p>
-                    <p>Um PDF com suas informações foi gerado e enviado para seu email.</p>
+                    <p class="success-message">Seu formulário de anamnese foi enviado com sucesso para a Dra. Jaqueline.</p>
+                    <div class="success-details">
+                        <p><i class="fas fa-envelope"></i> Uma cópia do formulário foi enviada para: <strong id="emailEnviado"></strong></p>
+                        <p><i class="fas fa-file-pdf"></i> O PDF foi salvo em nossos registros com seu nome, RG e data.</p>
+                        <p><i class="fas fa-shield-alt"></i> Seus dados estão protegidos conforme a LGPD.</p>
+                    </div>
                     <div class="modal-actions">
                         <button class="btn-download" id="downloadPdf"><i class="fas fa-download"></i> Baixar PDF</button>
                         <button class="btn-close" id="closeModalBtn">Fechar</button>
                     </div>
+                    <p class="modal-note">Você pode fechar esta janela. Obrigado por completar seu formulário!</p>
                 </div>
             </div>
         </div>
@@ -451,24 +759,26 @@
                 <div class="footer-info">
                     <h3>Dra. Jaqueline Nobre Moratore</h3>
                     <p>Odontologia Integrada & Saúde Bucal</p>
-                    <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
-                    <p><i class="fas fa-envelope"></i> contato@drajaqueline.com</p>
+                    <p><i class="fas fa-phone"></i> (11) 98470-8439</p>
+                    <p><i class="fas fa-envelope"></i> jaqueline.nobre.mratore.odonto@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Endereço do consultório</p>
                 </div>
                 <div class="footer-security">
                     <h4><i class="fas fa-lock"></i> Segurança dos Dados</h4>
                     <p>Seus dados são protegidos conforme a LGPD</p>
                     <p>Formulário seguro com criptografia</p>
+                    <p>Assinatura digital com validade legal</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2023 Dra. Jaqueline Nobre Moratore. Todos os direitos reservados.</p>
+                <p>&copy; 2025 Dra. Jaqueline Nobre Moratore. Todos os direitos reservados.</p>
+                <p>Desenvolvido com <i class="fas fa-heart" style="color: var(--primary-color);"></i> para sua saúde bucal</p>
             </div>
         </footer>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="assets/signature-pad.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
