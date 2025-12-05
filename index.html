@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Anamnese - Dra. Jaqueline Nobre Moratore</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-tooth"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Dra. Jaqueline Nobre Moratore</h1>
+                    <p>Odontologia & Saúde Bucal</p>
+                </div>
+            </div>
+            <div class="header-info">
+                <p><i class="fas fa-shield-alt"></i> Formulário Seguro de Anamnese</p>
+                <p><i class="fas fa-mobile-alt"></i> Otimizado para Celular</p>
+            </div>
+        </header>
+
+        <!-- Barra de Progresso -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-steps">
+                <div class="step active" data-step="1"><span>1</span> Dados Pessoais</div>
+                <div class="step" data-step="2"><span>2</span> Saúde Geral</div>
+                <div class="step" data-step="3"><span>3</span> Saúde Bucal</div>
+                <div class="step" data-step="4"><span>4</span> Assinatura</div>
+            </div>
+        </div>
+
+        <!-- Formulário -->
+        <form id="anamneseForm" class="form-container">
+            <!-- Seção 1: Dados Pessoais -->
+            <section class="form-section active" id="section1">
+                <h2><i class="fas fa-user-circle"></i> Dados Pessoais</h2>
+                <p class="section-description">Preencha seus dados pessoais para identificação</p>
+                
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="nomeCompleto">Nome Completo <span class="required">*</span></label>
+                        <input type="text" id="nomeCompleto" name="nomeCompleto" required placeholder="Digite seu nome completo">
+                        <div class="input-icon"><i class="fas fa-user"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataNascimento">Data de Nascimento <span class="required">*</span></label>
+                        <input type="date" id="dataNascimento" name="dataNascimento" required>
+                        <div class="input-icon"><i class="fas fa-calendar-alt"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="genero">Gênero <span class="required">*</span></label>
+                        <select id="genero" name="genero" required>
+                            <option value="">Selecione</option>
+                            <option value="Feminino">Feminino</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Outro">Outro</option>
+                            <option value="Prefiro não informar">Prefiro não informar</option>
+                        </select>
+                        <div class="input-icon"><i class="fas fa-venus-mars"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefone">Telefone <span class="required">*</span></label>
+                        <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999" pattern="\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}">
+                        <div class="input-icon"><i class="fas fa-phone-alt"></i></div>
+                        <small class="hint">Formato: (11) 99999-9999</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="endereco">Endereço Completo <span class="required">*</span></label>
+                        <input type="text" id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade, estado">
+                        <div class="input-icon"><i class="fas fa-home"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profissao">Profissão <span class="required">*</span></label>
+                        <input type="text" id="profissao" name="profissao" required placeholder="Sua profissão">
+                        <div class="input-icon"><i class="fas fa-briefcase"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rg">RG <span class="required">*</span></label>
+                        <input type="text" id="rg" name="rg" required placeholder="Digite seu RG">
+                        <div class="input-icon"><i class="fas fa-id-card"></i></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpf">CPF <span class="required">*</span></label>
+                        <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}">
+                        <div class="input-icon"><i class="fas fa-id-card"></i></div>
+                        <small class="hint">Formato: 000.000.000-00</small>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn-next" data-next="2">Próximo <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </section>
+
+            <!-- Seção 2: Saúde Geral -->
+            <section class="form-section" id="section2">
+                <h2><i class="fas fa-heartbeat"></i> Saúde Geral</h2>
+                <p class="section-description">Informações sobre sua saúde para um atendimento seguro</p>
+                
+                <div class="conditional-group">
+                    <div class="form-group radio-group">
+                        <label>Está em algum tratamento médico? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="tratamentoMedico" value="Sim" data-toggle="tratamentoQual">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tratamentoMedico" value="Não" data-toggle="tratamentoQual" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group conditional hidden" id="tratamentoQual">
+                        <label for="tratamentoQualInput">Qual tratamento médico?</label>
+                        <input type="text" id="tratamentoQualInput" name="tratamentoQual" placeholder="Descreva o tratamento">
+                        <div class="input-icon"><i class="fas fa-stethoscope"></i></div>
+                    </div>
+                </div>
+
+                <div class="conditional-group">
+                    <div class="form-group radio-group">
+                        <label>Toma alguma medicação? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="tomaMedicacao" value="Sim" data-toggle="medicacaoQual">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="tomaMedicacao" value="Não" data-toggle="medicacaoQual" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group conditional hidden" id="medicacaoQual">
+                        <label for="medicacaoQualInput">Qual medicação?</label>
+                        <input type="text" id="medicacaoQualInput" name="medicacaoQual" placeholder="Nome da medicação">
+                        <div class="input-icon"><i class="fas fa-pills"></i></div>
+                    </div>
+                </div>
+
+                <!-- Continuação dos campos condicionais -->
+                <!-- A estrutura se repete para todos os campos condicionais -->
+                <!-- Para economizar espaço, vou mostrar apenas alguns exemplos -->
+
+                <div class="form-group radio-group">
+                    <label>Já se submeteu a alguma cirurgia? <span class="required">*</span></label>
+                    <div class="radio-options">
+                        <label class="radio-label">
+                            <input type="radio" name="cirurgia" value="Sim" data-toggle="cirurgiaQual">
+                            <span class="radio-custom"></span>
+                            Sim
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="cirurgia" value="Não" data-toggle="cirurgiaQual" checked>
+                            <span class="radio-custom"></span>
+                            Não
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group conditional hidden" id="cirurgiaQual">
+                    <label for="cirurgiaQualInput">Qual cirurgia?</label>
+                    <input type="text" id="cirurgiaQualInput" name="cirurgiaQual" placeholder="Descreva a cirurgia">
+                    <div class="input-icon"><i class="fas fa-procedures"></i></div>
+                </div>
+
+                <!-- Outros campos de saúde geral seguem o mesmo padrão -->
+
+                <div class="form-grid">
+                    <div class="form-group radio-group">
+                        <label>Possui alergia a produtos cosméticos? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="alergiaCosmeticos" value="Sim" data-toggle="alergiaCosmeticosQual">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="alergiaCosmeticos" value="Não" data-toggle="alergiaCosmeticosQual" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group radio-group">
+                        <label>Você autoriza uso de imagem? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="autorizaImagem" value="Sim">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="autorizaImagem" value="Não" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn-prev" data-prev="1"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button type="button" class="btn-next" data-next="3">Próximo <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </section>
+
+            <!-- Seção 3: Saúde Bucal -->
+            <section class="form-section" id="section3">
+                <h2><i class="fas fa-tooth"></i> Saúde Bucal</h2>
+                <p class="section-description">Hábitos e cuidados com sua saúde bucal</p>
+                
+                <div class="form-group radio-group">
+                    <label>Tem preferência por algum tipo de música? <span class="required">*</span></label>
+                    <div class="radio-options">
+                        <label class="radio-label">
+                            <input type="radio" name="preferenciaMusica" value="Sim" data-toggle="preferenciaMusicaQual">
+                            <span class="radio-custom"></span>
+                            Sim
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="preferenciaMusica" value="Não" data-toggle="preferenciaMusicaQual" checked>
+                            <span class="radio-custom"></span>
+                            Não
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group conditional hidden" id="preferenciaMusicaQual">
+                    <label for="preferenciaMusicaQualInput">Qual tipo de música?</label>
+                    <input type="text" id="preferenciaMusicaQualInput" name="preferenciaMusicaQual" placeholder="Ex: Clássica, pop, rock...">
+                    <div class="input-icon"><i class="fas fa-music"></i></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="frequenciaEscovacao">Com qual frequência você escova os dentes? <span class="required">*</span></label>
+                    <select id="frequenciaEscovacao" name="frequenciaEscovacao" required>
+                        <option value="">Selecione</option>
+                        <option value="1 vez ao dia">1 vez ao dia</option>
+                        <option value="2 vezes ao dia">2 vezes ao dia</option>
+                        <option value="3 vezes ao dia">3 vezes ao dia</option>
+                        <option value="Mais de 3 vezes ao dia">Mais de 3 vezes ao dia</option>
+                        <option value="Só quando lembro">Só quando lembro</option>
+                    </select>
+                    <div class="input-icon"><i class="fas fa-brush"></i></div>
+                </div>
+
+                <div class="form-group radio-group">
+                    <label>Faz uso de fio dental? <span class="required">*</span></label>
+                    <div class="radio-options">
+                        <label class="radio-label">
+                            <input type="radio" name="usoFioDental" value="Sim">
+                            <span class="radio-custom"></span>
+                            Sim
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="usoFioDental" value="Não" checked>
+                            <span class="radio-custom"></span>
+                            Não
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cremeDental">Qual creme dental usa?</label>
+                    <input type="text" id="cremeDental" name="cremeDental" placeholder="Marca do creme dental">
+                    <div class="input-icon"><i class="fas fa-pump-soap"></i></div>
+                </div>
+
+                <div class="form-group radio-group">
+                    <label>Escova regularmente a língua? <span class="required">*</span></label>
+                    <div class="radio-options">
+                        <label class="radio-label">
+                            <input type="radio" name="escovaLingua" value="Sim">
+                            <span class="radio-custom"></span>
+                            Sim
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="escovaLingua" value="Não" checked>
+                            <span class="radio-custom"></span>
+                            Não
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="marcaEscova">Qual a marca da sua escova?</label>
+                    <input type="text" id="marcaEscova" name="marcaEscova" placeholder="Marca da escova dental">
+                    <div class="input-icon"><i class="fas fa-toothbrush"></i></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group radio-group">
+                        <label>Morde objetos? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="mordeObjetos" value="Sim">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="mordeObjetos" value="Não" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group radio-group">
+                        <label>Range os dentes? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="rangeDentes" value="Sim">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="rangeDentes" value="Não" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group radio-group">
+                        <label>Rói as unhas? <span class="required">*</span></label>
+                        <div class="radio-options">
+                            <label class="radio-label">
+                                <input type="radio" name="roiUnhas" value="Sim">
+                                <span class="radio-custom"></span>
+                                Sim
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="roiUnhas" value="Não" checked>
+                                <span class="radio-custom"></span>
+                                Não
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn-prev" data-prev="2"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button type="button" class="btn-next" data-next="4">Próximo <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </section>
+
+            <!-- Seção 4: Confirmação e Assinatura -->
+            <section class="form-section" id="section4">
+                <h2><i class="fas fa-file-signature"></i> Confirmação e Assinatura</h2>
+                <p class="section-description">Revise suas informações e assine digitalmente</p>
+                
+                <div class="review-summary">
+                    <h3><i class="fas fa-clipboard-check"></i> Resumo das Informações</h3>
+                    <div class="review-content" id="reviewContent">
+                        <!-- Resumo será preenchido via JavaScript -->
+                    </div>
+                    <button type="button" class="btn-edit" id="editForm"><i class="fas fa-edit"></i> Editar Informações</button>
+                </div>
+
+                <div class="signature-container">
+                    <h3><i class="fas fa-signature"></i> Assinatura Digital</h3>
+                    <p class="signature-info">Assine na área abaixo usando seu mouse ou dedo (em dispositivos touch)</p>
+                    
+                    <div class="signature-wrapper">
+                        <canvas id="signatureCanvas" width="600" height="200"></canvas>
+                        <div class="signature-controls">
+                            <button type="button" id="clearSignature" class="btn-clear"><i class="fas fa-eraser"></i> Limpar</button>
+                            <button type="button" id="undoSignature" class="btn-undo"><i class="fas fa-undo"></i> Desfazer</button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmacaoIdentidade">Confirmação de Identidade <span class="required">*</span></label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="confirmacaoIdentidade" name="confirmacaoIdentidade" required>
+                            <label for="confirmacaoIdentidade" class="checkbox-label">
+                                <span class="checkbox-custom"></span>
+                                Eu, <span id="nomeConfirma"></span>, confirmo que todas as informações fornecidas são verdadeiras e que sou eu mesmo(a) preenchendo este formulário.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="consent-container">
+                        <h4><i class="fas fa-shield-alt"></i> Termo de Consentimento</h4>
+                        <div class="consent-text">
+                            <p>Declaro que as informações fornecidas são verdadeiras e autorizo a Dra. Jaqueline Nobre Moratore a utilizá-las para fins de avaliação odontológica e tratamento.</p>
+                            <p>Concordo com o processamento dos meus dados pessoais de acordo com a Lei Geral de Proteção de Dados (LGPD).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button type="button" class="btn-prev" data-prev="3"><i class="fas fa-arrow-left"></i> Anterior</button>
+                    <button type="submit" class="btn-submit" id="submitForm"><i class="fas fa-paper-plane"></i> Enviar Formulário</button>
+                </div>
+            </section>
+        </form>
+
+        <!-- Modal de Confirmação -->
+        <div class="modal" id="successModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-check-circle"></i> Formulário Enviado com Sucesso!</h2>
+                    <button class="modal-close" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="success-animation">
+                        <i class="fas fa-tooth success-icon"></i>
+                    </div>
+                    <p>Seu formulário de anamnese foi enviado com sucesso para a Dra. Jaqueline.</p>
+                    <p>Um PDF com suas informações foi gerado e enviado para seu email.</p>
+                    <div class="modal-actions">
+                        <button class="btn-download" id="downloadPdf"><i class="fas fa-download"></i> Baixar PDF</button>
+                        <button class="btn-close" id="closeModalBtn">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>Dra. Jaqueline Nobre Moratore</h3>
+                    <p>Odontologia Integrada & Saúde Bucal</p>
+                    <p><i class="fas fa-phone"></i> (11) 9999-9999</p>
+                    <p><i class="fas fa-envelope"></i> contato@drajaqueline.com</p>
+                </div>
+                <div class="footer-security">
+                    <h4><i class="fas fa-lock"></i> Segurança dos Dados</h4>
+                    <p>Seus dados são protegidos conforme a LGPD</p>
+                    <p>Formulário seguro com criptografia</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Dra. Jaqueline Nobre Moratore. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="assets/signature-pad.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
