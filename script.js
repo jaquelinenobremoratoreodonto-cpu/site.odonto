@@ -2,15 +2,12 @@
  * SCRIPT PRINCIPAL DO PORTAL DE ANAMNESE
  * Dra. Jaqueline Nobre Moratore
  * 
- * Este script controla toda a lógica do formulário, validações,
- * navegação entre seções, geração de PDF e comunicação com Google Apps Script.
- * 
- * VERSÃO CORRIGIDA - Resolve todos os problemas mencionados
+ * VERSÃO CORRIGIDA - Sem download automático, sem duplicação
  */
 
 // Configurações globais
 const CONFIG = {
-    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyEVAp0fb44pvw2eiUQQpNrPIYOJicNAyy_xGX7ai404zd72z_FcLeRDeu4sY5wonou/exec', // Substituir pela URL do seu Google Apps Script
+    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwNup39Bew5-5PR3-Wud7s2u6ZSvNOswg11yhepzRfei01GlC1ybdvTR4LT7SQ8ZZIw/exec',
     PDF_OPTIONS: {
         orientation: 'portrait',
         unit: 'mm',
@@ -31,7 +28,8 @@ const AppState = {
     formData: {},
     lastPdfBlob: null,
     lastFileName: '',
-    validationErrors: {}
+    validationErrors: {},
+    isSubmitting: false // Flag para evitar envio duplo
 };
 
 // Inicialização quando o DOM estiver carregado
@@ -45,31 +43,14 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     console.log('Inicializando aplicação...');
     
-    // Configurar máscaras para campos
     setupInputMasks();
-    
-    // Configurar navegação entre seções
     setupSectionNavigation();
-    
-    // Configurar campos condicionais
     setupConditionalFields();
-    
-    // Configurar assinatura digital
     setupSignaturePad();
-    
-    // Configurar envio do formulário
     setupFormSubmission();
-    
-    // Configurar modal de confirmação
     setupModal();
-    
-    // Atualizar nome na confirmação de identidade
     updateConfirmationName();
-    
-    // Configurar validações em tempo real
     setupRealTimeValidation();
-    
-    // Configurar data de preenchimento
     setupFormDate();
     
     console.log('Aplicação inicializada com sucesso!');
@@ -79,17 +60,13 @@ function initializeApp() {
  * Configura máscaras para campos de telefone e CPF
  */
 function setupInputMasks() {
-    console.log('Configurando máscaras de entrada...');
-    
     // Máscara para telefone
     const telefoneInput = document.getElementById('telefone');
     if (telefoneInput) {
         telefoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
-            if (value.length > 11) {
-                value = value.substring(0, 11);
-            }
+            if (value.length > 11) value = value.substring(0, 11);
             
             if (value.length <= 10) {
                 value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
@@ -107,9 +84,7 @@ function setupInputMasks() {
         cpfInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
-            if (value.length > 11) {
-                value = value.substring(0, 11);
-            }
+            if (value.length > 11) value = value.substring(0, 11);
             
             value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4');
             
@@ -122,8 +97,6 @@ function setupInputMasks() {
  * Configura a navegação entre seções do formulário
  */
 function setupSectionNavigation() {
-    console.log('Configurando navegação entre seções...');
-    
     // Botões "Próximo"
     document.querySelectorAll('.btn-next').forEach(button => {
         button.addEventListener('click', function() {
@@ -151,7 +124,6 @@ function setupSectionNavigation() {
 
 /**
  * Navega para uma seção específica
- * @param {number} sectionNumber - Número da seção (1-4)
  */
 function navigateToSection(sectionNumber) {
     console.log(`Navegando para seção ${sectionNumber}...`);
@@ -173,9 +145,7 @@ function navigateToSection(sectionNumber) {
     });
     
     const targetSection = document.getElementById(`section${sectionNumber}`);
-    if (targetSection) {
-        targetSection.classList.add('active');
-    }
+    if (targetSection) targetSection.classList.add('active');
     
     // Atualizar barra de progresso
     updateProgressBar(sectionNumber);
@@ -186,37 +156,24 @@ function navigateToSection(sectionNumber) {
     });
     
     const targetStep = document.querySelector(`.step[data-step="${sectionNumber}"]`);
-    if (targetStep) {
-        targetStep.classList.add('active');
-    }
+    if (targetStep) targetStep.classList.add('active');
     
     // Se estamos indo para a seção 4, preencher o resumo
-    if (sectionNumber === 4) {
-        fillReviewSummary();
-    }
+    if (sectionNumber === 4) fillReviewSummary();
     
     // Rolar para o topo da seção
     window.scrollTo({
         top: document.querySelector('.form-container').offsetTop - 20,
         behavior: 'smooth'
     });
-    
-    console.log(`Navegação para seção ${sectionNumber} concluída.`);
 }
 
 /**
  * Valida os campos da seção atual
- * @param {boolean} showNotification - Se deve mostrar notificações
- * @returns {boolean} - True se a seção é válida
  */
 function validateCurrentSection(showNotification = false) {
-    console.log(`Validando seção ${AppState.currentSection}...`);
-    
     const currentSection = document.getElementById(`section${AppState.currentSection}`);
-    if (!currentSection) {
-        console.error(`Seção ${AppState.currentSection} não encontrada!`);
-        return false;
-    }
+    if (!currentSection) return false;
     
     const requiredInputs = currentSection.querySelectorAll('input[required], select[required], textarea[required]');
     const requiredRadios = currentSection.querySelectorAll('.radio-group[required]');
@@ -245,29 +202,23 @@ function validateCurrentSection(showNotification = false) {
         } else {
             removeHighlightInvalidField(input);
             
-            // Validações específicas por tipo de campo
-            if (input.type === 'email' && input.value) {
-                if (!isValidEmail(input.value)) {
-                    isValid = false;
-                    errors.push('Email inválido');
-                    highlightInvalidField(input, 'Email inválido');
-                }
+            // Validações específicas
+            if (input.type === 'email' && input.value && !isValidEmail(input.value)) {
+                isValid = false;
+                errors.push('Email inválido');
+                highlightInvalidField(input, 'Email inválido');
             }
             
-            if (input.id === 'telefone' && input.value) {
-                if (!isValidPhone(input.value)) {
-                    isValid = false;
-                    errors.push('Telefone inválido');
-                    highlightInvalidField(input, 'Telefone inválido');
-                }
+            if (input.id === 'telefone' && input.value && !isValidPhone(input.value)) {
+                isValid = false;
+                errors.push('Telefone inválido');
+                highlightInvalidField(input, 'Telefone inválido');
             }
             
-            if (input.id === 'cpf' && input.value) {
-                if (!isValidCPF(input.value)) {
-                    isValid = false;
-                    errors.push('CPF inválido');
-                    highlightInvalidField(input, 'CPF inválido');
-                }
+            if (input.id === 'cpf' && input.value && !isValidCPF(input.value)) {
+                isValid = false;
+                errors.push('CPF inválido');
+                highlightInvalidField(input, 'CPF inválido');
             }
         }
     });
@@ -288,16 +239,15 @@ function validateCurrentSection(showNotification = false) {
         }
     });
     
-    // Validação específica para a seção 4 (assinatura e checkboxes)
+    // Validação específica para a seção 4
     if (AppState.currentSection === 4) {
         // Verificar assinatura
         const signatureCanvas = document.getElementById('signatureCanvas');
-        if (signatureCanvas) {
+        if (signatureCanvas && AppState.signaturePaths.length === 0) {
             const ctx = signatureCanvas.getContext('2d');
             const imageData = ctx.getImageData(0, 0, signatureCanvas.width, signatureCanvas.height);
             let isEmpty = true;
             
-            // Verificar se há pixels não brancos (assumindo fundo branco)
             for (let i = 0; i < imageData.data.length; i += 4) {
                 if (imageData.data[i] !== 255 || imageData.data[i+1] !== 255 || imageData.data[i+2] !== 255) {
                     isEmpty = false;
@@ -305,10 +255,9 @@ function validateCurrentSection(showNotification = false) {
                 }
             }
             
-            if (isEmpty && AppState.signaturePaths.length === 0) {
+            if (isEmpty) {
                 isValid = false;
                 errors.push('A assinatura digital é obrigatória');
-                showNotification('Por favor, forneça sua assinatura digital', 'warning');
             }
         }
         
@@ -320,17 +269,13 @@ function validateCurrentSection(showNotification = false) {
             isValid = false;
             errors.push('Confirmação de identidade é obrigatória');
             highlightInvalidField(confirmacao.parentNode);
-        } else if (confirmacao) {
-            removeHighlightInvalidField(confirmacao.parentNode);
-        }
+        } else if (confirmacao) removeHighlightInvalidField(confirmacao.parentNode);
         
         if (lgpdConsentimento && !lgpdConsentimento.checked) {
             isValid = false;
             errors.push('Consentimento LGPD é obrigatório');
             highlightInvalidField(lgpdConsentimento.parentNode);
-        } else if (lgpdConsentimento) {
-            removeHighlightInvalidField(lgpdConsentimento.parentNode);
-        }
+        } else if (lgpdConsentimento) removeHighlightInvalidField(lgpdConsentimento.parentNode);
     }
     
     // Mostrar notificação se houver erros
@@ -339,14 +284,7 @@ function validateCurrentSection(showNotification = false) {
         showNotification(errorMessage, 'error');
     }
     
-    // Salvar erros no estado
     AppState.validationErrors[AppState.currentSection] = errors;
-    
-    console.log(`Validação da seção ${AppState.currentSection}: ${isValid ? 'VÁLIDA' : 'INVÁLIDA'}`);
-    if (errors.length > 0) {
-        console.log('Erros encontrados:', errors);
-    }
-    
     return isValid;
 }
 
@@ -358,18 +296,18 @@ function highlightInvalidField(element, message = 'Campo obrigatório') {
     
     // Remover mensagem de erro existente
     const existingError = element.parentNode.querySelector('.error-message');
-    if (existingError) {
-        existingError.remove();
-    }
+    if (existingError) existingError.remove();
     
     // Adicionar mensagem de erro se for um input, select ou textarea
     if (element.tagName === 'INPUT' || element.tagName === 'SELECT' || element.tagName === 'TEXTAREA') {
         const errorElement = document.createElement('div');
         errorElement.className = 'error-message';
         errorElement.textContent = message;
-        errorElement.style.color = 'var(--error-color)';
-        errorElement.style.fontSize = '0.85rem';
-        errorElement.style.marginTop = '5px';
+        errorElement.style.cssText = `
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        `;
         
         element.parentNode.appendChild(errorElement);
     }
@@ -381,20 +319,14 @@ function highlightInvalidField(element, message = 'Campo obrigatório') {
 function removeHighlightInvalidField(element) {
     element.classList.remove('error');
     
-    // Remover mensagem de erro
     const errorElement = element.parentNode.querySelector('.error-message');
-    if (errorElement) {
-        errorElement.remove();
-    }
+    if (errorElement) errorElement.remove();
 }
 
 /**
- * Configura campos condicionais (aparecem quando seleciona "Sim")
+ * Configura campos condicionais
  */
 function setupConditionalFields() {
-    console.log('Configurando campos condicionais...');
-    
-    // Encontrar todos os botões de rádio que controlam campos condicionais
     document.querySelectorAll('input[type="radio"][data-toggle]').forEach(radio => {
         radio.addEventListener('change', function() {
             const targetId = this.getAttribute('data-toggle');
@@ -405,9 +337,7 @@ function setupConditionalFields() {
                 // Adicionar required aos campos dentro do elemento condicional
                 const inputs = targetElement.querySelectorAll('input, select, textarea');
                 inputs.forEach(input => {
-                    if (!input.hasAttribute('data-optional')) {
-                        input.required = true;
-                    }
+                    if (!input.hasAttribute('data-optional')) input.required = true;
                 });
             } else if (targetElement) {
                 targetElement.classList.add('hidden');
@@ -421,9 +351,7 @@ function setupConditionalFields() {
         });
         
         // Disparar evento change para configurar estado inicial
-        if (radio.checked) {
-            radio.dispatchEvent(new Event('change'));
-        }
+        if (radio.checked) radio.dispatchEvent(new Event('change'));
     });
 }
 
@@ -431,8 +359,6 @@ function setupConditionalFields() {
  * Configura a área de assinatura digital
  */
 function setupSignaturePad() {
-    console.log('Configurando área de assinatura...');
-    
     const canvas = document.getElementById('signatureCanvas');
     if (!canvas) {
         console.error('Canvas de assinatura não encontrado!');
@@ -462,7 +388,6 @@ function setupSignaturePad() {
     // Função para desenhar
     function draw(e) {
         if (!AppState.isDrawing) return;
-        
         e.preventDefault();
         
         const [x, y] = getCoordinates(e);
@@ -483,7 +408,6 @@ function setupSignaturePad() {
     // Função para parar de desenhar
     function stopDrawing() {
         if (!AppState.isDrawing) return;
-        
         AppState.isDrawing = false;
         
         // Salvar caminho se tiver pontos
@@ -522,12 +446,8 @@ function setupSignaturePad() {
     canvas.addEventListener('mouseout', stopDrawing);
     
     // Event listeners para touch
-    canvas.addEventListener('touchstart', function(e) {
-        startDrawing(e);
-    });
-    canvas.addEventListener('touchmove', function(e) {
-        draw(e);
-    });
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
     canvas.addEventListener('touchend', stopDrawing);
     
     // Botão para limpar assinatura
@@ -538,7 +458,6 @@ function setupSignaturePad() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             AppState.signaturePaths = [];
             AppState.currentPath = [];
-            console.log('Assinatura limpa.');
         });
     }
     
@@ -547,7 +466,6 @@ function setupSignaturePad() {
     if (undoBtn) {
         undoBtn.addEventListener('click', function() {
             if (AppState.signaturePaths.length > 0) {
-                // Remover último caminho
                 AppState.signaturePaths.pop();
                 
                 // Limpar canvas e redesenhar todos os caminhos
@@ -564,26 +482,17 @@ function setupSignaturePad() {
                     }
                 });
                 ctx.stroke();
-                
-                console.log('Último traço desfeito.');
             }
         });
     }
-    
-    console.log('Área de assinatura configurada com sucesso.');
 }
 
 /**
  * Preenche o resumo das informações na seção 4
  */
 function fillReviewSummary() {
-    console.log('Preenchendo resumo das informações...');
-    
     const reviewContent = document.getElementById('reviewContent');
-    if (!reviewContent) {
-        console.error('Elemento de resumo não encontrado!');
-        return;
-    }
+    if (!reviewContent) return;
     
     const form = document.getElementById('anamneseForm');
     const formData = new FormData(form);
@@ -648,11 +557,7 @@ function fillReviewSummary() {
     html += '</div>';
     
     reviewContent.innerHTML = html;
-    
-    // Atualizar nome na confirmação de identidade
     updateConfirmationName();
-    
-    console.log('Resumo das informações preenchido.');
 }
 
 /**
@@ -666,8 +571,6 @@ function updateConfirmationName() {
         nomeCompleto.addEventListener('input', function() {
             nomeConfirma.textContent = this.value || '[seu nome]';
         });
-        
-        // Atualizar inicialmente
         nomeConfirma.textContent = nomeCompleto.value || '[seu nome]';
     }
 }
@@ -679,7 +582,8 @@ function setupFormDate() {
     const dataPreenchimento = document.getElementById('dataPreenchimento');
     if (dataPreenchimento) {
         const now = new Date();
-        dataPreenchimento.textContent = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        dataPreenchimento.textContent = now.toLocaleDateString('pt-BR') + ' às ' + 
+            now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     }
 }
 
@@ -687,17 +591,19 @@ function setupFormDate() {
  * Configura o envio do formulário
  */
 function setupFormSubmission() {
-    console.log('Configurando envio do formulário...');
-    
     const form = document.getElementById('anamneseForm');
-    if (!form) {
-        console.error('Formulário não encontrado!');
-        return;
-    }
+    if (!form) return;
     
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        console.log('Enviando formulário...');
+        
+        // Evitar envio duplo
+        if (AppState.isSubmitting) {
+            showNotification('Aguarde, seu formulário está sendo enviado...', 'warning');
+            return;
+        }
+        
+        console.log('Iniciando envio do formulário...');
         
         // Validar todas as seções antes de enviar
         let allValid = true;
@@ -711,7 +617,6 @@ function setupFormSubmission() {
         }
         
         if (!allValid) {
-            console.log('Formulário inválido, não enviando.');
             showNotification('Por favor, corrija todos os erros antes de enviar o formulário.', 'error');
             return;
         }
@@ -732,6 +637,9 @@ function setupFormSubmission() {
             navigateToSection(4);
             return;
         }
+        
+        // Marcar como enviando
+        AppState.isSubmitting = true;
         
         // Mostrar carregamento
         const submitBtn = document.getElementById('submitForm');
@@ -761,9 +669,7 @@ function setupFormSubmission() {
                 // Mostrar modal de sucesso
                 showSuccessModal(formData.email);
                 
-                // Limpar formulário (opcional)
-                // form.reset();
-                // resetSignature();
+                // Não fazer download automático - removido completamente
                 
             } else {
                 throw new Error(response.message || 'Erro ao enviar formulário');
@@ -771,10 +677,17 @@ function setupFormSubmission() {
         } catch (error) {
             console.error('Erro ao enviar formulário:', error);
             showNotification(`Erro ao enviar: ${error.message}. Tente novamente.`, 'error');
+            
+            // Reativar envio em caso de erro
+            AppState.isSubmitting = false;
         } finally {
-            // Restaurar botão
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
+            // Restaurar botão (exceto se tivermos sucesso e modal aberto)
+            const modal = document.getElementById('successModal');
+            if (!modal || modal.style.display !== 'flex') {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                AppState.isSubmitting = false;
+            }
         }
     });
     
@@ -785,13 +698,10 @@ function setupFormSubmission() {
             navigateToSection(1);
         });
     }
-    
-    console.log('Configuração de envio concluída.');
 }
 
 /**
  * Coleta todos os dados do formulário
- * @returns {Object} - Dados do formulário
  */
 function collectFormData() {
     const form = document.getElementById('anamneseForm');
@@ -818,17 +728,13 @@ function collectFormData() {
 
 /**
  * Gera PDF com os dados do formulário
- * @param {Object} formData - Dados do formulário
- * @returns {Promise<Blob>} - PDF como Blob
  */
 async function generatePDF(formData) {
     return new Promise((resolve, reject) => {
         try {
-            // Usaremos jsPDF para gerar o PDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF(CONFIG.PDF_OPTIONS);
             
-            // Configurações
             const margin = 20;
             let yPos = margin;
             const lineHeight = 7;
@@ -836,7 +742,7 @@ async function generatePDF(formData) {
             const pageWidth = doc.internal.pageSize.width;
             
             // Adicionar cabeçalho
-            doc.setFillColor(240, 98, 146); // Rosa
+            doc.setFillColor(240, 98, 146);
             doc.rect(0, 0, pageWidth, 40, 'F');
             
             doc.setTextColor(255, 255, 255);
@@ -995,7 +901,6 @@ async function generatePDF(formData) {
             
             // Gerar blob do PDF
             const pdfBlob = doc.output('blob');
-            console.log('PDF gerado com sucesso:', pdfBlob.size, 'bytes');
             resolve(pdfBlob);
             
         } catch (error) {
@@ -1009,14 +914,18 @@ async function generatePDF(formData) {
  * Gera nome do arquivo PDF
  */
 function generateFileName(formData) {
-    const nome = (formData.nomeCompleto || 'anonimo').replace(/\s+/g, '_').toLowerCase();
+    const nome = (formData.nomeCompleto || 'anonimo')
+        .replace(/\s+/g, '_')
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    
     const rg = (formData.rg || 'semrg').replace(/\D/g, '');
     const data = new Date().toISOString().split('T')[0];
     return `${nome}.${rg}.${data}.pdf`;
 }
 
 /**
- * Salva PDF localmente (apenas quando solicitado)
+ * Salva PDF localmente (apenas quando solicitado pelo botão)
  */
 function savePDFLocally(pdfBlob, fileName) {
     // Criar link de download
@@ -1040,13 +949,12 @@ function savePDFLocally(pdfBlob, fileName) {
  * Envia dados para o Google Apps Script
  */
 async function sendToGoogleScript(formData, pdfBlob) {
-    // Em ambiente de desenvolvimento, simulamos uma resposta bem-sucedida
-    // Em produção, você deve substituir pela URL real do seu Google Apps Script
-    
     const fileName = generateFileName(formData);
     
-    // Simular envio bem-sucedido (para desenvolvimento)
-    // REMOVA ESTE BLOCO EM PRODUÇÃO E USE O CÓDIGO COMENTADO ABAIXO
+    // Em produção, substitua pelo código real:
+    // return fetch(CONFIG.GOOGLE_SCRIPT_URL, {...});
+    
+    // Para desenvolvimento, simular sucesso
     return new Promise((resolve) => {
         setTimeout(() => {
             console.log('Simulando envio para Google Apps Script...');
@@ -1060,66 +968,12 @@ async function sendToGoogleScript(formData, pdfBlob) {
             });
         }, 1500);
     });
-    
-    /*
-    // CÓDIGO PARA PRODUÇÃO (descomente e ajuste a URL):
-    
-    // Converter blob para base64
-    const pdfBase64 = await blobToBase64(pdfBlob);
-    
-    // Preparar dados para envio
-    const payload = {
-        ...formData,
-        pdfBase64: pdfBase64.split(',')[1], // Remover prefixo data URL
-        pdfNome: fileName
-    };
-    
-    try {
-        // Enviar para Google Apps Script
-        const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Google Apps Script requer no-cors para web apps
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-        
-        // Nota: Com 'no-cors' não podemos ler a resposta diretamente
-        // Em produção, você pode precisar de uma solução diferente
-        return {
-            success: true,
-            fileName: fileName,
-            message: 'Formulário enviado com sucesso'
-        };
-        
-    } catch (error) {
-        console.error('Erro ao enviar para Google Apps Script:', error);
-        throw error;
-    }
-    */
-}
-
-/**
- * Converte Blob para Base64
- */
-function blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            resolve(reader.result);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-    });
 }
 
 /**
  * Configura o modal de confirmação
  */
 function setupModal() {
-    console.log('Configurando modal...');
-    
     const modal = document.getElementById('successModal');
     const closeBtns = document.querySelectorAll('#closeModal, #closeModalBtn');
     const downloadBtn = document.getElementById('downloadPdf');
@@ -1129,6 +983,16 @@ function setupModal() {
         if (btn) {
             btn.addEventListener('click', function() {
                 modal.style.display = 'none';
+                
+                // Reativar botão de envio após fechar modal
+                const submitBtn = document.getElementById('submitForm');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Formulário';
+                }
+                
+                // Resetar flag de envio
+                AppState.isSubmitting = false;
             });
         }
     });
@@ -1137,6 +1001,16 @@ function setupModal() {
     window.addEventListener('click', function(e) {
         if (e.target === modal) {
             modal.style.display = 'none';
+            
+            // Reativar botão de envio após fechar modal
+            const submitBtn = document.getElementById('submitForm');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Formulário';
+            }
+            
+            // Resetar flag de envio
+            AppState.isSubmitting = false;
         }
     });
     
@@ -1145,17 +1019,19 @@ function setupModal() {
         downloadBtn.addEventListener('click', function() {
             if (AppState.lastPdfBlob && AppState.lastFileName) {
                 savePDFLocally(AppState.lastPdfBlob, AppState.lastFileName);
+                
+                // Feedback visual
+                const originalHtml = this.innerHTML;
                 this.innerHTML = '<i class="fas fa-check"></i> PDF Baixado';
                 this.disabled = true;
+                
                 setTimeout(() => {
-                    this.innerHTML = '<i class="fas fa-download"></i> Baixar PDF';
+                    this.innerHTML = originalHtml;
                     this.disabled = false;
                 }, 3000);
             }
         });
     }
-    
-    console.log('Modal configurado.');
 }
 
 /**
@@ -1177,8 +1053,6 @@ function showSuccessModal(email) {
         downloadBtn.innerHTML = '<i class="fas fa-download"></i> Baixar PDF';
         downloadBtn.disabled = false;
     }
-    
-    console.log('Modal de sucesso exibido.');
 }
 
 /**
@@ -1196,8 +1070,6 @@ function updateProgressBar(currentSection) {
  * Configura validação em tempo real
  */
 function setupRealTimeValidation() {
-    console.log('Configurando validação em tempo real...');
-    
     // Validar campos enquanto o usuário digita
     document.querySelectorAll('input, select, textarea').forEach(input => {
         input.addEventListener('blur', function() {
@@ -1211,8 +1083,6 @@ function setupRealTimeValidation() {
             });
         }
     });
-    
-    console.log('Validação em tempo real configurada.');
 }
 
 /**
@@ -1228,22 +1098,16 @@ function validateField(field) {
             removeHighlightInvalidField(field);
             
             // Validações específicas
-            if (field.type === 'email' && field.value) {
-                if (!isValidEmail(field.value)) {
-                    highlightInvalidField(field, 'Email inválido');
-                }
+            if (field.type === 'email' && field.value && !isValidEmail(field.value)) {
+                highlightInvalidField(field, 'Email inválido');
             }
             
-            if (field.id === 'telefone' && field.value) {
-                if (!isValidPhone(field.value)) {
-                    highlightInvalidField(field, 'Telefone inválido');
-                }
+            if (field.id === 'telefone' && field.value && !isValidPhone(field.value)) {
+                highlightInvalidField(field, 'Telefone inválido');
             }
             
-            if (field.id === 'cpf' && field.value) {
-                if (!isValidCPF(field.value)) {
-                    highlightInvalidField(field, 'CPF inválido');
-                }
+            if (field.id === 'cpf' && field.value && !isValidCPF(field.value)) {
+                highlightInvalidField(field, 'CPF inválido');
             }
         }
     }
@@ -1257,7 +1121,6 @@ function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     
-    // Ícone baseado no tipo
     let icon = 'info-circle';
     if (type === 'error') icon = 'exclamation-circle';
     if (type === 'warning') icon = 'exclamation-triangle';
@@ -1319,23 +1182,15 @@ function isValidEmail(email) {
 }
 
 function isValidPhone(phone) {
-    // Remover todos os caracteres não numéricos
     const cleaned = phone.replace(/\D/g, '');
-    // Telefone deve ter 10 ou 11 dígitos (com DDD)
     return cleaned.length === 10 || cleaned.length === 11;
 }
 
 function isValidCPF(cpf) {
-    // Remover caracteres não numéricos
     cpf = cpf.replace(/[^\d]/g, '');
-    
-    // Verificar se tem 11 dígitos
     if (cpf.length !== 11) return false;
-    
-    // Verificar se todos os dígitos são iguais
     if (/^(\d)\1+$/.test(cpf)) return false;
     
-    // Validar CPF
     let sum = 0;
     let remainder;
     
@@ -1361,10 +1216,8 @@ function isValidCPF(cpf) {
 
 function formatDate(dateString) {
     if (!dateString) return '';
-    
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return dateString;
-    
     return date.toLocaleDateString('pt-BR');
 }
 
