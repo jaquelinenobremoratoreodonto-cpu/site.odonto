@@ -8,7 +8,7 @@
 
 // Configurações globais
 const CONFIG = {
-    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycby.../exec', // URL do Google Apps Script
+    GOOGLE_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzKdkrUwavgxWv9M22Kb0NQ56dJIAftnGYppPqQOuhW9UAbZXqCYiZcIs29guXyL-GT/exec', // URL do Google Apps Script
     PDF_OPTIONS: {
         orientation: 'portrait',
         unit: 'mm',
