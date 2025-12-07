@@ -8,7 +8,7 @@
 // ============================================
 
 // URL DO GOOGLE APPS SCRIPT - IMPERATIVO: Substitua pela sua URL após implantar
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxyxKq6iWN6Xi_XxIlcu5C3jBm0QwS7EkDhZ5dzzAZzlHjPyX9ux_YAIqkdcRWy1gJr/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoQMjVEWmQV_MoqoTZZ6p0Hwb6TTSM1Tt4eC9dTMgYHuE_xJtGkBhRYAEuuC9dyr10/exec";
 
 // Estado global
 let currentSection = 1;
