@@ -1,0 +1,919 @@
+/* ====================================
+   ESTILOS GERAIS E VARIÁVEIS DE CORES
+   ==================================== */
+:root {
+    --primary-color: #e75480; /* Rosa principal */
+    --primary-light: #ffc2d4; /* Rosa claro */
+    --primary-dark: #c2185b; /* Rosa escuro */
+    --secondary-color: #ffffff; /* Branco */
+    --text-color: #333333; /* Cinza escuro para texto */
+    --text-light: #666666; /* Cinza médio */
+    --text-lighter: #888888; /* Cinza claro */
+    --bg-color: #fffafa; /* Branco rosado muito claro */
+    --border-color: #e0e0e0; /* Cinza claro para bordas */
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+    --border-radius: 10px;
+    --success-color: #4caf50;
+    --error-color: #f44336;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ====================================
+   ANIMAÇÕES
+   ==================================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* ====================================
+   CABEÇALHO
+   ==================================== */
+.header {
+    background-color: var(--secondary-color);
+    box-shadow: var(--shadow);
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    animation: fadeIn 0.8s ease;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    animation: pulse 2s infinite;
+}
+
+.logo-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.logo-text p {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-top: 2px;
+}
+
+.contact-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.contact-item i {
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* ====================================
+   BARRA DE PROGRESSO
+   ==================================== */
+.progress-container {
+    margin: 30px auto 40px;
+    max-width: 1000px;
+    animation: fadeIn 1s ease;
+}
+
+.progress-bar {
+    height: 4px;
+    background-color: var(--primary-light);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background-color: var(--primary-color);
+    transition: var(--transition);
+    border-radius: 2px;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+    transition: var(--transition);
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    color: var(--text-lighter);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-bottom: 8px;
+    transition: var(--transition);
+}
+
+.step-text {
+    font-size: 0.85rem;
+    color: var(--text-lighter);
+    transition: var(--transition);
+}
+
+.step.active .step-number {
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 10px rgba(231, 84, 128, 0.3);
+}
+
+.step.active .step-text {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+/* ====================================
+   CONTEÚDO PRINCIPAL
+   ==================================== */
+.main-content {
+    min-height: calc(100vh - 400px);
+    padding-bottom: 60px;
+    animation: fadeIn 0.8s ease;
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeIn 0.8s ease 0.2s both;
+}
+
+.form-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.form-header h2 i {
+    color: var(--primary-color);
+}
+
+.form-header p {
+    color: var(--text-light);
+    max-width: 700px;
+    margin: 0 auto;
+    font-size: 1rem;
+}
+
+/* ====================================
+   FORMULÁRIO
+   ==================================== */
+.anamnese-form {
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 30px;
+    animation: fadeIn 1s ease 0.4s both;
+}
+
+.form-section {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.form-section.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--text-color);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: var(--primary-color);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: var(--transition);
+    background-color: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(231, 84, 128, 0.1);
+}
+
+.form-group input::placeholder {
+    color: var(--text-lighter);
+}
+
+/* ====================================
+   CHECKBOXES E RADIO BUTTONS
+   ==================================== */
+.checkbox-label,
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 10px;
+    font-weight: normal;
+    user-select: none;
+}
+
+.checkbox-label input,
+.radio-label input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkmark {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 22px;
+    width: 22px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.checkbox-label:hover input ~ .checkmark {
+    border-color: var(--primary-color);
+}
+
+.checkbox-label input:checked ~ .checkmark {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-label input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-label .checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.radiomark {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 22px;
+    width: 22px;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.radio-label:hover input ~ .radiomark {
+    border-color: var(--primary-color);
+}
+
+.radio-label input:checked ~ .radiomark {
+    border-color: var(--primary-color);
+}
+
+.radiomark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.radio-label input:checked ~ .radiomark:after {
+    display: block;
+}
+
+.radio-label .radiomark:after {
+    top: 5px;
+    left: 5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+}
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* ====================================
+   NAVEGAÇÃO DO FORMULÁRIO
+   ==================================== */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-prev,
+.btn-next,
+.btn-submit {
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-prev {
+    background-color: white;
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
+.btn-prev:hover {
+    background-color: #f9f9f9;
+    border-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.btn-next,
+.btn-submit {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-next:hover,
+.btn-submit:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.btn-submit:disabled {
+    background-color: var(--primary-light);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ====================================
+   SEÇÃO DE CONFIRMAÇÃO
+   ==================================== */
+.confirmation-header {
+    text-align: center;
+    margin-bottom: 30px;
+    animation: fadeIn 0.8s ease;
+}
+
+.confirmation-subtitle {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.confirmation-summary {
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    padding: 25px;
+    margin-bottom: 30px;
+    animation: slideInLeft 0.8s ease;
+}
+
+.confirmation-summary h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.summary-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.summary-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-label {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.summary-value {
+    color: var(--text-light);
+    margin-top: 3px;
+    font-size: 0.95rem;
+}
+
+/* ====================================
+   SEÇÃO DE ASSINATURA
+   ==================================== */
+.signature-section {
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    padding: 25px;
+    margin-bottom: 30px;
+    animation: slideInRight 0.8s ease;
+}
+
+.signature-section h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.signature-section p {
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+
+.signature-container {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    background-color: white;
+}
+
+#signatureCanvas {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: white;
+    width: 100%;
+    max-width: 600px;
+    display: block;
+    margin: 0 auto 15px;
+    cursor: crosshair;
+}
+
+.signature-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.btn-clear,
+.btn-save {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-clear {
+    background-color: white;
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
+.btn-clear:hover {
+    background-color: #f9f9f9;
+    border-color: var(--error-color);
+    color: var(--error-color);
+}
+
+.btn-save {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-save:hover {
+    background-color: var(--primary-dark);
+}
+
+.signature-note {
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.signature-status {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* ====================================
+   MODAL DE CONFIRMAÇÃO
+   ==================================== */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: slideInRight 0.5s ease;
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: var(--success-color);
+    margin-bottom: 15px;
+}
+
+.modal-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--text-color);
+}
+
+.modal-body p {
+    margin-bottom: 15px;
+    color: var(--text-light);
+    text-align: center;
+}
+
+.highlight-email {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn-download,
+.btn-cancel {
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-download {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.btn-download:hover {
+    background-color: #388e3c;
+    transform: translateY(-2px);
+}
+
+.btn-cancel {
+    background-color: white;
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
+.btn-cancel:hover {
+    background-color: #f9f9f9;
+    border-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+/* ====================================
+   RODAPÉ
+   ==================================== */
+.footer {
+    background-color: var(--secondary-color);
+    border-top: 1px solid var(--border-color);
+    padding: 40px 0 20px;
+    margin-top: 60px;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.footer-info h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+
+.footer-info p {
+    margin-bottom: 10px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer-info i {
+    color: var(--primary-color);
+    width: 20px;
+}
+
+.footer-notes {
+    flex: 1;
+    max-width: 600px;
+}
+
+.footer-notes p {
+    margin-bottom: 15px;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.footer-notes i {
+    color: var(--primary-color);
+    margin-right: 8px;
+}
+
+.copyright {
+    font-size: 0.85rem;
+    color: var(--text-lighter) !important;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ====================================
+   RESPONSIVIDADE
+   ==================================== */
+@media (max-width: 992px) {
+    .header .container {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .contact-info {
+        justify-content: center;
+    }
+    
+    .form-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .logo-text h1 {
+        font-size: 1.3rem;
+    }
+    
+    .progress-steps {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .step {
+        flex: 0 0 calc(50% - 15px);
+    }
+    
+    .form-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .section-title {
+        font-size: 1.4rem;
+    }
+    
+    .anamnese-form {
+        padding: 20px;
+    }
+    
+    .form-navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn-prev,
+    .btn-next,
+    .btn-submit {
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 576px) {
+    .step {
+        flex: 0 0 100%;
+    }
+    
+    .form-header h2 {
+        font-size: 1.4rem;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .signature-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-clear,
+    .btn-save {
+        width: 100%;
+        max-width: 200px;
+    }
+}
