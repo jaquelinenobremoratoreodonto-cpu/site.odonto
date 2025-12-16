@@ -917,3 +917,91 @@ body {
         max-width: 200px;
     }
 }
+
+/* Declaração de veracidade */
+.veracity-statement {
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-bottom: 25px;
+    border-left: 4px solid var(--primary-color);
+    animation: slideInLeft 0.8s ease;
+}
+
+.veracity-statement .checkbox-label {
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* Canvas de assinatura responsivo */
+.signature-container canvas {
+    width: 100%;
+    max-width: 600px;
+    height: 200px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: white;
+    display: block;
+    margin: 0 auto 15px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+/* Mensagens de erro */
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Animações adicionais */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Botão desabilitado */
+.btn-submit:disabled {
+    background-color: var(--primary-light);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    opacity: 0.7;
+}
+
+.btn-submit:disabled:hover {
+    background-color: var(--primary-light);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Melhorias na responsividade da assinatura */
+@media (max-width: 768px) {
+    .signature-container canvas {
+        height: 150px;
+    }
+    
+    .signature-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-clear,
+    .btn-save {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .signature-container canvas {
+        height: 120px;
+    }
+}
