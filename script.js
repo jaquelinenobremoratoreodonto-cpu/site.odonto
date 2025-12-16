@@ -11,6 +11,9 @@ const signatureCanvas = document.getElementById('signatureCanvas');
 const clearSignatureBtn = document.getElementById('clearSignature');
 const saveSignatureBtn = document.getElementById('saveSignature');
 const signatureStatus = document.getElementById('signatureStatus');
+const signatureError = document.getElementById('signatureError');
+const confirmVeracityCheckbox = document.getElementById('confirmVeracity');
+const veracityError = document.getElementById('veracityError');
 const submitFormBtn = document.getElementById('submitForm');
 const confirmationModal = document.getElementById('confirmationModal');
 const downloadPdfBtn = document.getElementById('downloadPdf');
@@ -68,8 +71,9 @@ let formData = {
     rangeDentes: '',
     roiUnhas: '',
     
-    // Assinatura (será adicionada posteriormente)
+    // Assinatura e veracidade
     signatureData: null,
+    confirmVeracity: false,
     
     // Data de envio
     dataEnvio: ''
@@ -101,6 +105,9 @@ function initApp() {
     // Atualiza a barra de progresso
     updateProgressBar();
     
+    // Desabilita o botão de envio inicialmente
+    updateSubmitButtonState();
+    
     console.log('Aplicativo inicializado com sucesso!');
 }
 
@@ -109,20 +116,65 @@ function initApp() {
  */
 function initSignaturePad() {
     if (signatureCanvas) {
+        // Obtém o contexto 2D do canvas
+        const ctx = signatureCanvas.getContext('2d');
+        
+        // Configura a qualidade da assinatura para telas de alta resolução
+        const scale = window.devicePixelRatio || 1;
+        const width = signatureCanvas.offsetWidth * scale;
+        const height = signatureCanvas.offsetHeight * scale;
+        
+        // Define o tamanho do canvas
+        signatureCanvas.width = width;
+        signatureCanvas.height = height;
+        
+        // Ajusta o contexto para a escala
+        ctx.scale(scale, scale);
+        
+        // Inicializa o SignaturePad
         signaturePad = new SignaturePad(signatureCanvas, {
             backgroundColor: 'white',
-            penColor: '#e75480'
+            penColor: '#e75480',
+            minWidth: 1,
+            maxWidth: 3,
+            throttle: 16 // Controla a frequência de eventos para melhor performance
         });
         
-        // Ajusta o canvas para telas de alta resolução
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        signatureCanvas.width = signatureCanvas.offsetWidth * ratio;
-        signatureCanvas.height = signatureCanvas.offsetHeight * ratio;
-        signatureCanvas.getContext("2d").scale(ratio, ratio);
-        signaturePad.clear(); // Limpa o canvas após o redimensionamento
+        // Ajusta para dispositivos touch
+        if (window.PointerEvent) {
+            signatureCanvas.style.touchAction = 'none';
+        }
+        
+        // Lida com redimensionamento da janela
+        window.addEventListener('resize', handleResizeSignatureCanvas);
         
         console.log('Canvas de assinatura inicializado');
+    } else {
+        console.error('Canvas de assinatura não encontrado');
     }
+}
+
+/**
+ * Ajusta o canvas de assinatura ao redimensionar a janela
+ */
+function handleResizeSignatureCanvas() {
+    if (!signatureCanvas || !signaturePad) return;
+    
+    // Salva a assinatura atual
+    const data = signaturePad.toData();
+    
+    // Redimensiona o canvas
+    const scale = window.devicePixelRatio || 1;
+    const width = signatureCanvas.offsetWidth * scale;
+    const height = signatureCanvas.offsetHeight * scale;
+    
+    signatureCanvas.width = width;
+    signatureCanvas.height = height;
+    
+    // Restaura a assinatura
+    signaturePad.fromData(data);
+    
+    console.log('Canvas de assinatura redimensionado');
 }
 
 // ====================================
@@ -149,6 +201,11 @@ function setupEventListeners() {
     
     if (saveSignatureBtn) {
         saveSignatureBtn.addEventListener('click', saveSignature);
+    }
+    
+    // Eventos da veracidade
+    if (confirmVeracityCheckbox) {
+        confirmVeracityCheckbox.addEventListener('change', handleVeracityChange);
     }
     
     // Envio do formulário
@@ -213,6 +270,9 @@ function setupConditionalQuestions() {
                         conditionalElement.style.transform = 'translateY(-10px)';
                         setTimeout(() => {
                             conditionalElement.style.display = 'none';
+                            // Limpa o valor do campo condicional
+                            const inputElement = conditionalElement.querySelector('input');
+                            if (inputElement) inputElement.value = '';
                         }, 300);
                     }
                 });
@@ -239,7 +299,7 @@ function setupRealTimeDataCapture() {
                 timeout = setTimeout(() => {
                     captureFormData();
                     updateSummary();
-                }, 500);
+                }, 300);
             });
         }
         // Para selects e radios, captura imediatamente
@@ -345,14 +405,17 @@ function handleNextSection(event) {
         // Atualiza a barra de progresso
         updateProgressBar();
         
-        // Se for a última seção, atualiza o resumo
+        // Se for a última seção, atualiza o resumo e configura os estados
         if (nextSectionId === 'section4') {
             captureFormData();
             updateSummary();
             
-            // Habilita/desabilita o botão de envio baseado na assinatura
-            submitFormBtn.disabled = !isSignatureSaved;
+            // Atualiza o estado do botão de envio
+            updateSubmitButtonState();
         }
+        
+        // Rola para o topo da seção
+        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         console.log(`Navegando da seção ${currentSection.id} para ${nextSectionId}`);
     }
@@ -380,6 +443,9 @@ function handlePrevSection(event) {
         // Atualiza a barra de progresso
         updateProgressBar();
         
+        // Rola para o topo da seção
+        prevSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
         console.log(`Navegando da seção ${currentSection.id} para ${prevSectionId}`);
     }
 }
@@ -394,15 +460,42 @@ function validateSection(section) {
     let isValid = true;
     
     requiredInputs.forEach(input => {
-        if (!input.value.trim()) {
+        if (!input.value.trim() && input.type !== 'checkbox') {
             isValid = false;
-            input.classList.add('error');
+            highlightError(input);
+        } else if (input.type === 'checkbox' && !input.checked) {
+            isValid = false;
+            highlightError(input);
         } else {
-            input.classList.remove('error');
+            removeErrorHighlight(input);
         }
     });
     
     return isValid;
+}
+
+/**
+ * Destaca um campo com erro
+ * @param {HTMLElement} input - Elemento input com erro
+ */
+function highlightError(input) {
+    input.classList.add('error');
+    input.style.borderColor = '#f44336';
+    
+    // Adiciona animação de shake
+    input.classList.add('shake');
+    setTimeout(() => {
+        input.classList.remove('shake');
+    }, 500);
+}
+
+/**
+ * Remove o destaque de erro de um campo
+ * @param {HTMLElement} input - Elemento input
+ */
+function removeErrorHighlight(input) {
+    input.classList.remove('error');
+    input.style.borderColor = '';
 }
 
 /**
@@ -481,9 +574,15 @@ function clearSignature() {
     if (signaturePad) {
         signaturePad.clear();
         isSignatureSaved = false;
+        formData.signatureData = null;
         signatureStatus.textContent = 'Não';
         signatureStatus.style.color = '#e75480';
-        submitFormBtn.disabled = true;
+        
+        // Oculta a mensagem de erro da assinatura
+        if (signatureError) signatureError.style.display = 'none';
+        
+        // Atualiza o estado do botão de envio
+        updateSubmitButtonState();
         
         console.log('Assinatura limpa');
     }
@@ -495,17 +594,68 @@ function clearSignature() {
 function saveSignature() {
     if (signaturePad && !signaturePad.isEmpty()) {
         // Converte a assinatura para base64
-        formData.signatureData = signaturePad.toDataURL();
+        formData.signatureData = signaturePad.toDataURL('image/png');
         isSignatureSaved = true;
         signatureStatus.textContent = 'Sim';
         signatureStatus.style.color = '#4caf50';
-        submitFormBtn.disabled = false;
+        
+        // Oculta a mensagem de erro da assinatura
+        if (signatureError) signatureError.style.display = 'none';
+        
+        // Atualiza o estado do botão de envio
+        updateSubmitButtonState();
         
         console.log('Assinatura salva');
     } else {
-        alert('Por favor, faça sua assinatura antes de salvar.');
+        // Mostra mensagem de erro
+        if (signatureError) {
+            signatureError.style.display = 'flex';
+            signatureError.classList.add('shake');
+            setTimeout(() => {
+                signatureError.classList.remove('shake');
+            }, 500);
+        }
+        
         console.log('Tentativa de salvar assinatura vazia');
     }
+}
+
+// ====================================
+// MANIPULAÇÃO DA CONFIRMAÇÃO DE VERACIDADE
+// ====================================
+
+/**
+ * Manipula a mudança no checkbox de veracidade
+ * @param {Event} event - Evento de change
+ */
+function handleVeracityChange(event) {
+    formData.confirmVeracity = event.target.checked;
+    
+    // Oculta a mensagem de erro se estiver marcado
+    if (event.target.checked && veracityError) {
+        veracityError.style.display = 'none';
+    }
+    
+    // Atualiza o estado do botão de envio
+    updateSubmitButtonState();
+    
+    console.log('Veracidade confirmada:', event.target.checked);
+}
+
+// ====================================
+// ATUALIZAÇÃO DO ESTADO DO BOTÃO DE ENVIO
+// ====================================
+
+/**
+ * Atualiza o estado do botão de envio baseado na assinatura e veracidade
+ */
+function updateSubmitButtonState() {
+    if (!submitFormBtn) return;
+    
+    const isReady = isSignatureSaved && formData.confirmVeracity;
+    submitFormBtn.disabled = !isReady;
+    
+    console.log('Estado do botão de envio atualizado:', isReady ? 'Habilitado' : 'Desabilitado');
 }
 
 // ====================================
@@ -564,6 +714,8 @@ function captureFormData() {
     formData.rangeDentes = getRadioValue('rangeDentes');
     formData.roiUnhas = getRadioValue('roiUnhas');
     
+    // Veracidade (já é capturada pelo event listener)
+    
     // Data de envio
     formData.dataEnvio = new Date().toLocaleString('pt-BR');
     
@@ -602,7 +754,7 @@ function updateSummary() {
     // Adiciona os itens do resumo
     const summaryItems = [
         { label: 'Nome Completo', value: formData.nomeCompleto || 'Não informado' },
-        { label: 'Data de Nascimento', value: formData.dataNascimento || 'Não informado' },
+        { label: 'Data de Nascimento', value: formatDate(formData.dataNascimento) || 'Não informado' },
         { label: 'Gênero', value: formData.genero || 'Não informado' },
         { label: 'Telefone/WhatsApp', value: formData.telefone || 'Não informado' },
         { label: 'E-mail', value: formData.email || 'Não informado' },
@@ -611,21 +763,21 @@ function updateSummary() {
         { label: 'RG', value: formData.rg || 'Não informado' },
         { label: 'CPF', value: formData.cpf || 'Não informado' },
         { label: 'Autoriza uso de imagem', value: formData.autorizaImagem },
-        { label: 'Preferência musical', value: formData.preferenciaMusical === 'Sim' ? `Sim: ${formData.preferenciaMusicalQual}` : formData.preferenciaMusical || 'Não informado' },
-        { label: 'Tratamento médico', value: formData.tratamentoMedico === 'Sim' ? `Sim: ${formData.tratamentoMedicoQual}` : formData.tratamentoMedico || 'Não informado' },
-        { label: 'Medicação regular', value: formData.tomaMedicacao === 'Sim' ? `Sim: ${formData.tomaMedicacaoQual}` : formData.tomaMedicacao || 'Não informado' },
-        { label: 'Cirurgias anteriores', value: formData.submeteuCirurgia === 'Sim' ? `Sim: ${formData.submeteuCirurgiaQual}` : formData.submeteuCirurgia || 'Não informado' },
+        { label: 'Preferência musical', value: formData.preferenciaMusical === 'Sim' ? `Sim: ${formData.preferenciaMusicalQual || 'Não especificada'}` : formData.preferenciaMusical || 'Não informado' },
+        { label: 'Tratamento médico', value: formData.tratamentoMedico === 'Sim' ? `Sim: ${formData.tratamentoMedicoQual || 'Não especificado'}` : formData.tratamentoMedico || 'Não informado' },
+        { label: 'Medicação regular', value: formData.tomaMedicacao === 'Sim' ? `Sim: ${formData.tomaMedicacaoQual || 'Não especificada'}` : formData.tomaMedicacao || 'Não informado' },
+        { label: 'Cirurgias anteriores', value: formData.submeteuCirurgia === 'Sim' ? `Sim: ${formData.submeteuCirurgiaQual || 'Não especificada'}` : formData.submeteuCirurgia || 'Não informado' },
         { label: 'Anestesia odontológica', value: formData.anestesiaOdontologica || 'Não informado' },
-        { label: 'Alergia a medicamentos', value: formData.alergiaMedicacao === 'Sim' ? `Sim: ${formData.alergiaMedicacaoQual}` : formData.alergiaMedicacao || 'Não informado' },
-        { label: 'Alergia a alimentos', value: formData.alergiaAlimento === 'Sim' ? `Sim: ${formData.alergiaAlimentoQual}` : formData.alergiaAlimento || 'Não informado' },
-        { label: 'Alteração cardiológica', value: formData.alteracaoCardiologica === 'Sim' ? `Sim: ${formData.alteracaoCardiologicaQual}` : formData.alteracaoCardiologica || 'Não informado' },
+        { label: 'Alergia a medicamentos', value: formData.alergiaMedicacao === 'Sim' ? `Sim: ${formData.alergiaMedicacaoQual || 'Não especificada'}` : formData.alergiaMedicacao || 'Não informado' },
+        { label: 'Alergia a alimentos', value: formData.alergiaAlimento === 'Sim' ? `Sim: ${formData.alergiaAlimentoQual || 'Não especificada'}` : formData.alergiaAlimento || 'Não informado' },
+        { label: 'Alteração cardiológica', value: formData.alteracaoCardiologica === 'Sim' ? `Sim: ${formData.alteracaoCardiologicaQual || 'Não especificada'}` : formData.alteracaoCardiologica || 'Não informado' },
         { label: 'Diabético', value: formData.diabetico || 'Não informado' },
         { label: 'Convulsões/Epilepsia', value: formData.convulsoesEpilepsia || 'Não informado' },
         { label: 'Disfunção renal', value: formData.disfuncaoRenal || 'Não informado' },
         { label: 'Problema de coagulação', value: formData.problemaCoagulacao || 'Não informado' },
         { label: 'Grávida/Lactante', value: formData.gravidaLactante || 'Não informado' },
-        { label: 'Problema hormonal', value: formData.problemaHormonal === 'Sim' ? `Sim: ${formData.problemaHormonalQual}` : formData.problemaHormonal || 'Não informado' },
-        { label: 'Alergia a cosméticos', value: formData.alergiaCosmeticos === 'Sim' ? `Sim: ${formData.alergiaCosmeticosQual}` : formData.alergiaCosmeticos || 'Não informado' },
+        { label: 'Problema hormonal', value: formData.problemaHormonal === 'Sim' ? `Sim: ${formData.problemaHormonalQual || 'Não especificado'}` : formData.problemaHormonal || 'Não informado' },
+        { label: 'Alergia a cosméticos', value: formData.alergiaCosmeticos === 'Sim' ? `Sim: ${formData.alergiaCosmeticosQual || 'Não especificada'}` : formData.alergiaCosmeticos || 'Não informado' },
         { label: 'Frequência de escovação', value: formData.frequenciaEscovacao || 'Não informado' },
         { label: 'Uso de fio dental', value: formData.usoFioDental || 'Não informado' },
         { label: 'Creme dental', value: formData.cremeDental || 'Não informado' },
@@ -650,6 +802,20 @@ function updateSummary() {
     console.log('Resumo atualizado');
 }
 
+/**
+ * Formata uma data no formato brasileiro
+ * @param {string} dateString - String da data no formato YYYY-MM-DD
+ * @returns {string} Data formatada no formato DD/MM/YYYY
+ */
+function formatDate(dateString) {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+    
+    return date.toLocaleDateString('pt-BR');
+}
+
 // ====================================
 // MANIPULAÇÃO DO ENVIO DO FORMULÁRIO
 // ====================================
@@ -661,10 +827,56 @@ function updateSummary() {
 function handleFormSubmit(event) {
     event.preventDefault();
     
+    console.log('Iniciando envio do formulário...');
+    
     // Valida se a assinatura foi salva
     if (!isSignatureSaved) {
+        console.log('Assinatura não salva');
+        
+        if (signatureError) {
+            signatureError.style.display = 'flex';
+            signatureError.classList.add('shake');
+            setTimeout(() => {
+                signatureError.classList.remove('shake');
+            }, 500);
+        }
+        
+        // Rola para a seção de assinatura
+        document.getElementById('signatureCanvas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
         alert('Por favor, salve sua assinatura antes de enviar o formulário.');
-        console.log('Tentativa de envio sem assinatura salva');
+        return;
+    }
+    
+    // Valida se a veracidade foi confirmada
+    if (!formData.confirmVeracity) {
+        console.log('Veracidade não confirmada');
+        
+        if (veracityError) {
+            veracityError.style.display = 'flex';
+            veracityError.classList.add('shake');
+            setTimeout(() => {
+                veracityError.classList.remove('shake');
+            }, 500);
+        }
+        
+        // Rola para a declaração de veracidade
+        document.getElementById('confirmVeracity').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        alert('Por favor, confirme a veracidade das informações antes de enviar o formulário.');
+        return;
+    }
+    
+    // Valida todas as seções do formulário
+    let allSectionsValid = true;
+    sections.forEach(section => {
+        if (!validateSection(section)) {
+            allSectionsValid = false;
+        }
+    });
+    
+    if (!allSectionsValid) {
+        alert('Por favor, preencha todos os campos obrigatórios antes de enviar o formulário.');
         return;
     }
     
@@ -691,33 +903,35 @@ function showConfirmationModal() {
         // Exibe o modal
         confirmationModal.style.display = 'flex';
         
+        // Adiciona uma animação de entrada
+        confirmationModal.querySelector('.modal-content').classList.add('animate-in');
+        
         console.log('Modal de confirmação exibido');
     }
 }
 
 /**
  * Envia os dados para o Google Apps Script (simulado)
- * Em um ambiente real, isso seria uma requisição fetch para o endpoint do Google Apps Script
  */
 function sendDataToGoogleAppsScript() {
     // Simulação do envio para o Google Apps Script
     console.log('Enviando dados para o Google Apps Script:', formData);
     
-    // Aqui você faria uma requisição fetch para o seu endpoint do Google Apps Script
+    // Em produção, descomente e ajuste este código:
     fetch('https://script.google.com/macros/s/AKfycbwBgUr8gewHvfQDF5aFW1l03Iziyb1rHznKkzsAWJK7Qa7lSsonZlOygvCNAgXg7B4y/exec', {
-         method: 'POST',
-         body: JSON.stringify(formData),
-         headers: {
-             'Content-Type': 'application/json'
-         }
-     })
-     .then(response => response.json())
-     .then(data => {
-         console.log('Resposta do Google Apps Script:', data);
-     })
-     .catch(error => {
-         console.error('Erro ao enviar dados para o Google Apps Script:', error);
-     });
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(() => {
+        console.log('Dados enviados com sucesso para o Google Apps Script');
+    })
+    .catch(error => {
+        console.error('Erro ao enviar dados para o Google Apps Script:', error);
+    });
     
     // Para fins de demonstração, vamos simular um envio bem-sucedido
     setTimeout(() => {
@@ -749,55 +963,54 @@ function generatePdf() {
     }
     
     try {
-        // Cria um novo documento PDF
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Configurações de cores
-        const primaryColor = '#e75480';
-        const textColor = '#333333';
-        const lightColor = '#666666';
+        // Configurações
+        const primaryColor = [231, 84, 128];
+        const textColor = [51, 51, 51];
+        const lightColor = [102, 102, 102];
         
-        // Adiciona o cabeçalho
+        // Cabeçalho
         doc.setFillColor(255, 255, 255);
         doc.rect(0, 0, 210, 40, 'F');
         
         // Logo e título
         doc.setFontSize(20);
-        doc.setTextColor(primaryColor);
+        doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
         doc.text('Dra. Jaqueline Nobre Moratore', 20, 20);
         
         doc.setFontSize(12);
-        doc.setTextColor(lightColor);
+        doc.setTextColor(...lightColor);
         doc.setFont('helvetica', 'normal');
         doc.text('Odontologia Integrada & Bem-Estar', 20, 28);
         
         // Linha decorativa
-        doc.setDrawColor(231, 84, 128);
+        doc.setDrawColor(...primaryColor);
         doc.setLineWidth(0.5);
         doc.line(20, 35, 190, 35);
         
         // Título do formulário
         doc.setFontSize(18);
-        doc.setTextColor(textColor);
+        doc.setTextColor(...textColor);
         doc.setFont('helvetica', 'bold');
         doc.text('Formulário de Anamnese Odontológica', 20, 50);
         
         // Data de envio
         doc.setFontSize(10);
-        doc.setTextColor(lightColor);
+        doc.setTextColor(...lightColor);
         doc.setFont('helvetica', 'normal');
         doc.text(`Data de envio: ${formData.dataEnvio}`, 20, 58);
         
         // Informações do paciente
         doc.setFontSize(14);
-        doc.setTextColor(primaryColor);
+        doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
         doc.text('Dados do Paciente', 20, 70);
         
         doc.setFontSize(11);
-        doc.setTextColor(textColor);
+        doc.setTextColor(...textColor);
         doc.setFont('helvetica', 'normal');
         
         let yPosition = 80;
@@ -805,7 +1018,7 @@ function generatePdf() {
         // Dados pessoais
         const personalData = [
             `Nome: ${formData.nomeCompleto}`,
-            `Data de Nascimento: ${formData.dataNascimento}`,
+            `Data de Nascimento: ${formatDate(formData.dataNascimento)}`,
             `Gênero: ${formData.genero}`,
             `Telefone: ${formData.telefone}`,
             `E-mail: ${formData.email}`,
@@ -826,21 +1039,20 @@ function generatePdf() {
             yPosition += 7;
         });
         
-        // Adiciona uma nova página se necessário
+        // Saúde geral
         if (yPosition > 250) {
             doc.addPage();
             yPosition = 20;
         }
         
-        // Saúde geral
         doc.setFontSize(14);
-        doc.setTextColor(primaryColor);
+        doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
         doc.text('Saúde Geral', 20, yPosition);
         yPosition += 10;
         
         doc.setFontSize(11);
-        doc.setTextColor(textColor);
+        doc.setTextColor(...textColor);
         doc.setFont('helvetica', 'normal');
         
         const healthData = [
@@ -869,21 +1081,20 @@ function generatePdf() {
             yPosition += 7;
         });
         
-        // Adiciona uma nova página se necessário
+        // Hábitos de higiene
         if (yPosition > 250) {
             doc.addPage();
             yPosition = 20;
         }
         
-        // Hábitos de higiene
         doc.setFontSize(14);
-        doc.setTextColor(primaryColor);
+        doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
         doc.text('Hábitos de Higiene Bucal', 20, yPosition);
         yPosition += 10;
         
         doc.setFontSize(11);
-        doc.setTextColor(textColor);
+        doc.setTextColor(...textColor);
         doc.setFont('helvetica', 'normal');
         
         const hygieneData = [
@@ -906,24 +1117,39 @@ function generatePdf() {
             yPosition += 7;
         });
         
-        // Adiciona uma nova página para a assinatura se necessário
+        // Declaração e assinatura
         if (yPosition > 200) {
             doc.addPage();
             yPosition = 20;
         }
         
-        // Assinatura
         doc.setFontSize(14);
-        doc.setTextColor(primaryColor);
+        doc.setTextColor(...primaryColor);
         doc.setFont('helvetica', 'bold');
-        doc.text('Assinatura do Paciente', 20, yPosition);
+        doc.text('Declaração e Assinatura', 20, yPosition);
         yPosition += 10;
         
-        // Se houver uma assinatura, adiciona-a ao PDF
+        doc.setFontSize(11);
+        doc.setTextColor(...textColor);
+        doc.setFont('helvetica', 'normal');
+        
+        // Declaração de veracidade
+        const declaration = 'Declaro, sob as penas da lei, que todas as informações fornecidas neste formulário são verdadeiras e estou ciente que informações falsas podem acarretar em prejuízos ao meu tratamento.';
+        const splitDeclaration = doc.splitTextToSize(declaration, 170);
+        doc.text(splitDeclaration, 20, yPosition);
+        yPosition += splitDeclaration.length * 7 + 10;
+        
+        doc.text(`Confirmado: ${formData.confirmVeracity ? 'Sim' : 'Não'}`, 20, yPosition);
+        yPosition += 10;
+        
+        // Assinatura
         if (formData.signatureData) {
             try {
-                // Adiciona a imagem da assinatura ao PDF
-                doc.addImage(formData.signatureData, 'PNG', 20, yPosition, 100, 40);
+                const img = new Image();
+                img.src = formData.signatureData;
+                
+                // Adiciona a imagem da assinatura
+                doc.addImage(img, 'PNG', 20, yPosition, 100, 40);
                 yPosition += 50;
             } catch (error) {
                 console.error('Erro ao adicionar assinatura ao PDF:', error);
@@ -935,10 +1161,7 @@ function generatePdf() {
             yPosition += 10;
         }
         
-        // Data e local da assinatura
-        doc.setFontSize(11);
-        doc.setTextColor(textColor);
-        doc.setFont('helvetica', 'normal');
+        // Data e local
         doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 20, yPosition);
         yPosition += 7;
         doc.text('Local: Formulário Online', 20, yPosition);
@@ -948,13 +1171,19 @@ function generatePdf() {
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
             doc.setFontSize(8);
-            doc.setTextColor(lightColor);
+            doc.setTextColor(...lightColor);
             doc.text(`Página ${i} de ${pageCount}`, 105, 287, { align: 'center' });
             doc.text('Dra. Jaqueline Nobre Moratore - Rua Avaré nº15, Bairro Matriz, Sala 22, Mauá - SP - Tel: 11 98470-8439', 105, 292, { align: 'center' });
         }
         
         // Gera o nome do arquivo
-        const fileName = `${formData.nomeCompleto.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+        const cleanName = formData.nomeCompleto
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-zA-Z0-9]/g, '')
+            .toLowerCase();
+        
+        const fileName = `${cleanName || 'anamnese'}.${new Date().toISOString().slice(0, 10)}.pdf`;
         
         // Faz o download do PDF
         doc.save(fileName);
@@ -966,6 +1195,10 @@ function generatePdf() {
         alert('Ocorreu um erro ao gerar o PDF. Por favor, tente novamente.');
     }
 }
+
+// ====================================
+// MANIPULAÇÃO DO MODAL
+// ====================================
 
 /**
  * Manipula o fechamento do modal
@@ -982,9 +1215,23 @@ function handleCloseModal() {
             signaturePad.clear();
         }
         
+        // Reseta os estados
         isSignatureSaved = false;
+        formData.confirmVeracity = false;
         signatureStatus.textContent = 'Não';
         signatureStatus.style.color = '#e75480';
+        
+        // Reseta a checkbox de veracidade
+        if (confirmVeracityCheckbox) {
+            confirmVeracityCheckbox.checked = false;
+        }
+        
+        // Reseta as mensagens de erro
+        if (signatureError) signatureError.style.display = 'none';
+        if (veracityError) veracityError.style.display = 'none';
+        
+        // Atualiza o estado do botão de envio
+        updateSubmitButtonState();
         
         // Volta para a primeira seção
         document.querySelectorAll('.form-section').forEach(section => {
@@ -1049,8 +1296,17 @@ function handleCloseModal() {
             rangeDentes: '',
             roiUnhas: '',
             signatureData: null,
+            confirmVeracity: false,
             dataEnvio: ''
         };
+        
+        // Limpa o resumo
+        if (summaryContent) {
+            summaryContent.innerHTML = '';
+        }
+        
+        // Rola para o topo
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         
         console.log('Modal fechado e formulário resetado');
     }
@@ -1062,3 +1318,26 @@ function handleCloseModal() {
 
 // Inicializa o aplicativo quando o DOM estiver completamente carregado
 document.addEventListener('DOMContentLoaded', initApp);
+
+// Configura o canvas de assinatura quando a janela é redimensionada
+window.addEventListener('resize', function() {
+    if (signaturePad) {
+        // Pequeno delay para garantir que o redimensionamento foi concluído
+        setTimeout(() => {
+            const data = signaturePad.toData();
+            const canvas = signaturePad.canvas;
+            
+            // Redimensiona o canvas
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            
+            // Limpa e redesenha a assinatura
+            signaturePad.clear();
+            if (data && data.length > 0) {
+                signaturePad.fromData(data);
+            }
+        }, 250);
+    }
+});
