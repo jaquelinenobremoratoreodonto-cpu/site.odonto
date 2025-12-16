@@ -587,6 +587,7 @@
                 </section>
                 
                 <!-- Seção 4: Confirmação e Assinatura -->
+                <!-- Substitua a seção de confirmação (section4) por esta versão corrigida: -->
                 <section class="form-section" id="section4">
                     <div class="confirmation-header">
                         <h3 class="section-title"><i class="fas fa-check-circle"></i> Confirmação de Informações</h3>
@@ -600,17 +601,32 @@
                         </div>
                     </div>
                     
+                    <!-- DECLARAÇÃO DE VERACIDADE -->
+                    <div class="veracity-statement">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="confirmVeracity" name="confirmVeracity" required>
+                            <span class="checkmark"></span>
+                            Declaro, sob as penas da lei, que todas as informações fornecidas neste formulário são verdadeiras e estou ciente que informações falsas podem acarretar em prejuízos ao meu tratamento.
+                        </label>
+                        <span class="error-message" id="veracityError" style="display: none; color: #f44336; font-size: 0.9rem; margin-top: 5px;">
+                            <i class="fas fa-exclamation-circle"></i> Você deve confirmar a veracidade das informações.
+                        </span>
+                    </div>
+                    
                     <div class="signature-section">
                         <h4><i class="fas fa-signature"></i> Assinatura do Paciente</h4>
                         <p>Assine no quadro abaixo para confirmar que todas as informações fornecidas são verdadeiras.</p>
                         
                         <div class="signature-container">
-                            <canvas id="signatureCanvas" width="600" height="200"></canvas>
+                            <canvas id="signatureCanvas"></canvas>
                             <div class="signature-buttons">
                                 <button type="button" id="clearSignature" class="btn-clear">Limpar Assinatura</button>
                                 <button type="button" id="saveSignature" class="btn-save">Salvar Assinatura</button>
                             </div>
                             <p class="signature-note">Assinatura salva: <span id="signatureStatus" class="signature-status">Não</span></p>
+                            <span class="error-message" id="signatureError" style="display: none; color: #f44336; font-size: 0.9rem; margin-top: 5px;">
+                                <i class="fas fa-exclamation-circle"></i> Você deve salvar sua assinatura.
+                            </span>
                         </div>
                     </div>
                     
