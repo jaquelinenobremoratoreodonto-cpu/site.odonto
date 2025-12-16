@@ -17,6 +17,7 @@
     --border-radius: 10px;
     --success-color: #4caf50;
     --error-color: #f44336;
+    --warning-color: #ff9800;
 }
 
 * {
@@ -62,6 +63,17 @@ body {
 @keyframes slideInLeft {
     from { transform: translateX(-20px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* ====================================
@@ -298,6 +310,7 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .form-group.full-width {
@@ -335,19 +348,37 @@ body {
     color: var(--text-lighter);
 }
 
+.field-error {
+    color: var(--error-color);
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+    border-color: var(--error-color);
+}
+
+.form-group.error .field-error {
+    display: block;
+}
+
 /* ====================================
    CHECKBOXES E RADIO BUTTONS
    ==================================== */
 .checkbox-label,
 .radio-label {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     cursor: pointer;
     position: relative;
     padding-left: 35px;
     margin-bottom: 10px;
     font-weight: normal;
     user-select: none;
+    line-height: 1.5;
 }
 
 .checkbox-label input,
@@ -469,6 +500,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    min-width: 150px;
 }
 
 .btn-prev {
@@ -490,7 +522,7 @@ body {
 }
 
 .btn-next:hover,
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
     background-color: var(--primary-dark);
     transform: translateY(-2px);
     box-shadow: var(--shadow-hover);
@@ -501,6 +533,22 @@ body {
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    opacity: 0.7;
+}
+
+.btn-submit.loading .btn-text {
+    display: none;
+}
+
+.btn-submit.loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
 }
 
 /* ====================================
@@ -580,6 +628,24 @@ body {
     line-height: 1.5;
 }
 
+.veracity-text {
+    font-weight: 500;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    color: var(--error-color);
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.error-message i {
+    font-size: 1rem;
+}
+
 /* ====================================
    SEÇÃO DE ASSINATURA
    ==================================== */
@@ -600,9 +666,10 @@ body {
     gap: 10px;
 }
 
-.signature-section p {
+.signature-instructions {
     color: var(--text-light);
     margin-bottom: 20px;
+    font-size: 0.95rem;
 }
 
 .signature-container {
@@ -612,25 +679,31 @@ body {
     background-color: white;
 }
 
+.signature-wrapper {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 15px;
+}
+
 #signatureCanvas {
+    width: 100%;
+    height: 100%;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     background-color: white;
-    width: 100%;
-    height: 200px;
     cursor: crosshair;
     touch-action: none;
 }
 
-.signature-buttons {
+.signature-controls {
     display: flex;
     justify-content: center;
     gap: 15px;
     margin-bottom: 15px;
 }
 
-.btn-clear,
-.btn-save {
+.btn-signature {
     padding: 10px 20px;
     border-radius: 6px;
     border: none;
@@ -639,6 +712,11 @@ body {
     font-size: 0.9rem;
     cursor: pointer;
     transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 150px;
+    justify-content: center;
 }
 
 .btn-clear {
@@ -662,20 +740,41 @@ body {
     background-color: var(--primary-dark);
 }
 
-.signature-note {
+.signature-status-info {
     text-align: center;
+}
+
+.signature-note {
     font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.signature-note i {
+    color: var(--primary-color);
 }
 
 .signature-status {
     font-weight: 600;
-    color: var(--primary-color);
+    transition: var(--transition);
+}
+
+.signature-status.pending {
+    color: var(--warning-color);
+}
+
+.signature-status.saved {
+    color: var(--success-color);
 }
 
 /* ====================================
    MODAL DE CONFIRMAÇÃO
    ==================================== */
-.modal {
+.modal-overlay {
     display: none;
     position: fixed;
     top: 0;
@@ -683,16 +782,17 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1000;
+    z-index: 2000;
     align-items: center;
     justify-content: center;
+    padding: 20px;
     animation: fadeIn 0.3s ease;
 }
 
-.modal-content {
+.modal-container {
     background-color: white;
     border-radius: var(--border-radius);
-    width: 90%;
+    width: 100%;
     max-width: 500px;
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -704,22 +804,26 @@ body {
     margin-bottom: 25px;
 }
 
-.success-icon {
+.modal-icon {
     font-size: 4rem;
     color: var(--success-color);
     margin-bottom: 15px;
 }
 
-.modal-header h3 {
+.modal-title {
     font-family: 'Playfair Display', serif;
     font-size: 1.8rem;
     color: var(--text-color);
 }
 
-.modal-body p {
+.modal-body {
+    text-align: center;
+}
+
+.modal-message {
     margin-bottom: 15px;
     color: var(--text-light);
-    text-align: center;
+    line-height: 1.6;
 }
 
 .highlight-email {
@@ -732,10 +836,10 @@ body {
     justify-content: center;
     gap: 15px;
     margin-top: 25px;
+    flex-wrap: wrap;
 }
 
-.btn-download,
-.btn-cancel {
+.btn-modal {
     padding: 14px 28px;
     border-radius: 8px;
     border: none;
@@ -748,6 +852,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    min-width: 150px;
 }
 
 .btn-download {
@@ -834,30 +939,6 @@ body {
 }
 
 /* ====================================
-   MENSAGENS DE ERRO
-   ==================================== */
-.error-message {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 5px;
-    animation: fadeIn 0.3s ease;
-}
-
-/* ====================================
-   ANIMAÇÕES ADICIONAIS
-   ==================================== */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
-.shake {
-    animation: shake 0.5s ease-in-out;
-}
-
-/* ====================================
    RESPONSIVIDADE
    ==================================== */
 @media (max-width: 992px) {
@@ -876,6 +957,11 @@ body {
     
     .form-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
     }
 }
 
@@ -917,7 +1003,7 @@ body {
         width: 100%;
     }
     
-    .modal-content {
+    .modal-container {
         width: 95%;
         padding: 20px;
     }
@@ -926,17 +1012,15 @@ body {
         flex-direction: column;
     }
     
-    .footer-content {
+    .btn-modal {
+        width: 100%;
+    }
+    
+    .signature-controls {
         flex-direction: column;
     }
     
-    .signature-buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .btn-clear,
-    .btn-save {
+    .btn-signature {
         width: 100%;
     }
 }
@@ -956,7 +1040,93 @@ body {
         grid-template-columns: 1fr;
     }
     
-    .signature-container canvas {
+    .signature-wrapper {
         height: 150px;
     }
+    
+    .modal-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* ====================================
+   ANIMAÇÕES ADICIONAIS
+   ==================================== */
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.slide-up {
+    animation: slideInUp 0.5s ease;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ====================================
+   ESTILOS PARA PERGUNTAS CONDICIONAIS
+   ==================================== */
+.conditional {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.conditional.show {
+    display: block !important;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.conditional.hide {
+    opacity: 0 !important;
+    transform: translateY(-10px) !important;
+}
+
+/* ====================================
+   ESTILOS PARA CAMPOS VALIDADOS
+   ==================================== */
+.form-group.valid input,
+.form-group.valid select {
+    border-color: var(--success-color);
+}
+
+/* ====================================
+   ESTILOS PARA LOADING
+   ==================================== */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid var(--primary-light);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+}
+
+.loading-text {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: 600;
 }
