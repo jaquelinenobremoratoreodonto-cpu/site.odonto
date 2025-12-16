@@ -704,20 +704,20 @@ function sendDataToGoogleAppsScript() {
     console.log('Enviando dados para o Google Apps Script:', formData);
     
     // Aqui você faria uma requisição fetch para o seu endpoint do Google Apps Script
-    // fetch('https://script.google.com/macros/s/SEU_SCRIPT_ID/exec', {
-    //     method: 'POST',
-    //     body: JSON.stringify(formData),
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //     console.log('Resposta do Google Apps Script:', data);
-    // })
-    // .catch(error => {
-    //     console.error('Erro ao enviar dados para o Google Apps Script:', error);
-    // });
+    fetch('https://script.google.com/macros/s/AKfycbwBgUr8gewHvfQDF5aFW1l03Iziyb1rHznKkzsAWJK7Qa7lSsonZlOygvCNAgXg7B4y/exec', {
+         method: 'POST',
+         body: JSON.stringify(formData),
+         headers: {
+             'Content-Type': 'application/json'
+         }
+     })
+     .then(response => response.json())
+     .then(data => {
+         console.log('Resposta do Google Apps Script:', data);
+     })
+     .catch(error => {
+         console.error('Erro ao enviar dados para o Google Apps Script:', error);
+     });
     
     // Para fins de demonstração, vamos simular um envio bem-sucedido
     setTimeout(() => {
