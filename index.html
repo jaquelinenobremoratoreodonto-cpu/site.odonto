@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- Cabeçalho com informações da dentista -->
@@ -83,11 +84,13 @@
                         <div class="form-group">
                             <label for="nomeCompleto">Nome Completo *</label>
                             <input type="text" id="nomeCompleto" name="nomeCompleto" required placeholder="Digite seu nome completo">
+                            <span class="field-error" id="nomeCompletoError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="dataNascimento">Data de Nascimento *</label>
                             <input type="date" id="dataNascimento" name="dataNascimento" required>
+                            <span class="field-error" id="dataNascimentoError"></span>
                         </div>
                         
                         <div class="form-group">
@@ -99,36 +102,43 @@
                                 <option value="Outro">Outro</option>
                                 <option value="Prefiro não informar">Prefiro não informar</option>
                             </select>
+                            <span class="field-error" id="generoError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="telefone">Telefone/WhatsApp *</label>
-                            <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999" pattern="\([0-9]{2}\) [0-9]{5}-[0-9]{4}">
+                            <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999">
+                            <span class="field-error" id="telefoneError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="email">E-mail *</label>
                             <input type="email" id="email" name="email" required placeholder="seuemail@exemplo.com">
+                            <span class="field-error" id="emailError"></span>
                         </div>
                         
                         <div class="form-group full-width">
                             <label for="endereco">Endereço Completo *</label>
                             <input type="text" id="endereco" name="endereco" required placeholder="Rua, número, bairro, cidade - estado">
+                            <span class="field-error" id="enderecoError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="profissao">Profissão *</label>
                             <input type="text" id="profissao" name="profissao" required placeholder="Sua profissão">
+                            <span class="field-error" id="profissaoError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="rg">RG *</label>
                             <input type="text" id="rg" name="rg" required placeholder="Número do RG">
+                            <span class="field-error" id="rgError"></span>
                         </div>
                         
                         <div class="form-group">
                             <label for="cpf">CPF *</label>
-                            <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00" pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}">
+                            <input type="text" id="cpf" name="cpf" required placeholder="000.000.000-00">
+                            <span class="field-error" id="cpfError"></span>
                         </div>
                         
                         <div class="form-group full-width">
@@ -140,19 +150,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Tem preferência musical durante o atendimento?</label>
+                            <label>Tem preferência musical durante o atendimento? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="preferenciaMusical" value="Sim">
+                                    <input type="radio" name="preferenciaMusical" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="preferenciaMusical" value="Não">
+                                    <input type="radio" name="preferenciaMusical" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="preferenciaMusicalError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="preferenciaMusicalQual" style="display: none;">
@@ -172,19 +183,20 @@
                     
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Está em algum tratamento médico atualmente?</label>
+                            <label>Está em algum tratamento médico atualmente? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="tratamentoMedico" value="Sim">
+                                    <input type="radio" name="tratamentoMedico" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="tratamentoMedico" value="Não">
+                                    <input type="radio" name="tratamentoMedico" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="tratamentoMedicoError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="tratamentoMedicoQual" style="display: none;">
@@ -193,19 +205,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Toma alguma medicação regularmente?</label>
+                            <label>Toma alguma medicação regularmente? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="tomaMedicacao" value="Sim">
+                                    <input type="radio" name="tomaMedicacao" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="tomaMedicacao" value="Não">
+                                    <input type="radio" name="tomaMedicacao" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="tomaMedicacaoError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="tomaMedicacaoQual" style="display: none;">
@@ -214,19 +227,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Já se submeteu a alguma cirurgia?</label>
+                            <label>Já se submeteu a alguma cirurgia? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="submeteuCirurgia" value="Sim">
+                                    <input type="radio" name="submeteuCirurgia" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="submeteuCirurgia" value="Não">
+                                    <input type="radio" name="submeteuCirurgia" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="submeteuCirurgiaError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="submeteuCirurgiaQual" style="display: none;">
@@ -235,35 +249,37 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Já se submeteu a anestesia odontológica?</label>
+                            <label>Já se submeteu a anestesia odontológica? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="anestesiaOdontologica" value="Sim">
+                                    <input type="radio" name="anestesiaOdontologica" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="anestesiaOdontologica" value="Não">
+                                    <input type="radio" name="anestesiaOdontologica" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="anestesiaOdontologicaError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Possui alergia a alguma medicação ou anestesia?</label>
+                            <label>Possui alergia a alguma medicação ou anestesia? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="alergiaMedicacao" value="Sim">
+                                    <input type="radio" name="alergiaMedicacao" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="alergiaMedicacao" value="Não">
+                                    <input type="radio" name="alergiaMedicacao" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="alergiaMedicacaoError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="alergiaMedicacaoQual" style="display: none;">
@@ -272,19 +288,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Possui alergia a algum alimento?</label>
+                            <label>Possui alergia a algum alimento? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="alergiaAlimento" value="Sim">
+                                    <input type="radio" name="alergiaAlimento" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="alergiaAlimento" value="Não">
+                                    <input type="radio" name="alergiaAlimento" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="alergiaAlimentoError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="alergiaAlimentoQual" style="display: none;">
@@ -293,19 +310,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Possui alguma alteração cardiológica?</label>
+                            <label>Possui alguma alteração cardiológica? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="alteracaoCardiologica" value="Sim">
+                                    <input type="radio" name="alteracaoCardiologica" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="alteracaoCardiologica" value="Não">
+                                    <input type="radio" name="alteracaoCardiologica" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="alteracaoCardiologicaError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="alteracaoCardiologicaQual" style="display: none;">
@@ -314,104 +332,110 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>É diabético?</label>
+                            <label>É diabético? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="diabetico" value="Sim">
+                                    <input type="radio" name="diabetico" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="diabetico" value="Não">
+                                    <input type="radio" name="diabetico" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="diabeticoError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Tem convulsões ou epilepsia?</label>
+                            <label>Tem convulsões ou epilepsia? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="convulsoesEpilepsia" value="Sim">
+                                    <input type="radio" name="convulsoesEpilepsia" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="convulsoesEpilepsia" value="Não">
+                                    <input type="radio" name="convulsoesEpilepsia" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="convulsoesEpilepsiaError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Tem alguma disfunção renal?</label>
+                            <label>Tem alguma disfunção renal? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="disfuncaoRenal" value="Sim">
+                                    <input type="radio" name="disfuncaoRenal" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="disfuncaoRenal" value="Não">
+                                    <input type="radio" name="disfuncaoRenal" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="disfuncaoRenalError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Tem problema de coagulação sanguínea?</label>
+                            <label>Tem problema de coagulação sanguínea? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="problemaCoagulacao" value="Sim">
+                                    <input type="radio" name="problemaCoagulacao" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="problemaCoagulacao" value="Não">
+                                    <input type="radio" name="problemaCoagulacao" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="problemaCoagulacaoError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Grávida ou lactante?</label>
+                            <label>Grávida ou lactante? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="gravidaLactante" value="Sim">
+                                    <input type="radio" name="gravidaLactante" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="gravidaLactante" value="Não">
+                                    <input type="radio" name="gravidaLactante" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="gravidaLactante" value="Não se Aplica">
+                                    <input type="radio" name="gravidaLactante" value="Não se Aplica" required>
                                     <span class="radiomark"></span>
                                     Não se Aplica
                                 </label>
                             </div>
+                            <span class="field-error" id="gravidaLactanteError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Possui algum problema hormonal?</label>
+                            <label>Possui algum problema hormonal? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="problemaHormonal" value="Sim">
+                                    <input type="radio" name="problemaHormonal" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="problemaHormonal" value="Não">
+                                    <input type="radio" name="problemaHormonal" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="problemaHormonalError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="problemaHormonalQual" style="display: none;">
@@ -420,19 +444,20 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Possui alergia a produtos ou cosméticos?</label>
+                            <label>Possui alergia a produtos ou cosméticos? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="alergiaCosmeticos" value="Sim">
+                                    <input type="radio" name="alergiaCosmeticos" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="alergiaCosmeticos" value="Não">
+                                    <input type="radio" name="alergiaCosmeticos" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                             </div>
+                            <span class="field-error" id="alergiaCosmeticosError"></span>
                         </div>
                         
                         <div class="form-group full-width conditional" id="alergiaCosmeticosQual" style="display: none;">
@@ -453,8 +478,8 @@
                     
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="frequenciaEscovacao">Com qual frequência escova os dentes?</label>
-                            <select id="frequenciaEscovacao" name="frequenciaEscovacao">
+                            <label for="frequenciaEscovacao">Com qual frequência escova os dentes? *</label>
+                            <select id="frequenciaEscovacao" name="frequenciaEscovacao" required>
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="1 vez por dia">1 vez por dia</option>
                                 <option value="2 vezes por dia">2 vezes por dia</option>
@@ -462,27 +487,29 @@
                                 <option value="Mais de 3 vezes por dia">Mais de 3 vezes por dia</option>
                                 <option value="Só quando lembra">Só quando lembra</option>
                             </select>
+                            <span class="field-error" id="frequenciaEscovacaoError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Faz uso de fio dental?</label>
+                            <label>Faz uso de fio dental? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="usoFioDental" value="Sim">
+                                    <input type="radio" name="usoFioDental" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="usoFioDental" value="Não">
+                                    <input type="radio" name="usoFioDental" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="usoFioDental" value="Às vezes">
+                                    <input type="radio" name="usoFioDental" value="Às vezes" required>
                                     <span class="radiomark"></span>
                                     Às vezes
                                 </label>
                             </div>
+                            <span class="field-error" id="usoFioDentalError"></span>
                         </div>
                         
                         <div class="form-group">
@@ -491,24 +518,25 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Escova regularmente a língua?</label>
+                            <label>Escova regularmente a língua? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="escovaLingua" value="Sim">
+                                    <input type="radio" name="escovaLingua" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="escovaLingua" value="Não">
+                                    <input type="radio" name="escovaLingua" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="escovaLingua" value="Às vezes">
+                                    <input type="radio" name="escovaLingua" value="Às vezes" required>
                                     <span class="radiomark"></span>
                                     Às vezes
                                 </label>
                             </div>
+                            <span class="field-error" id="escovaLinguaError"></span>
                         </div>
                         
                         <div class="form-group">
@@ -517,66 +545,69 @@
                         </div>
                         
                         <div class="form-group">
-                            <label>Morde objetos?</label>
+                            <label>Morde objetos? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="mordeObjetos" value="Sim">
+                                    <input type="radio" name="mordeObjetos" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="mordeObjetos" value="Não">
+                                    <input type="radio" name="mordeObjetos" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="mordeObjetos" value="Às vezes">
+                                    <input type="radio" name="mordeObjetos" value="Às vezes" required>
                                     <span class="radiomark"></span>
                                     Às vezes
                                 </label>
                             </div>
+                            <span class="field-error" id="mordeObjetosError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Range os dentes?</label>
+                            <label>Range os dentes? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="rangeDentes" value="Sim">
+                                    <input type="radio" name="rangeDentes" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="rangeDentes" value="Não">
+                                    <input type="radio" name="rangeDentes" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="rangeDentes" value="Não sei">
+                                    <input type="radio" name="rangeDentes" value="Não sei" required>
                                     <span class="radiomark"></span>
                                     Não sei
                                 </label>
                             </div>
+                            <span class="field-error" id="rangeDentesError"></span>
                         </div>
                         
                         <div class="form-group">
-                            <label>Rói as unhas?</label>
+                            <label>Rói as unhas? *</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="roiUnhas" value="Sim">
+                                    <input type="radio" name="roiUnhas" value="Sim" required>
                                     <span class="radiomark"></span>
                                     Sim
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="roiUnhas" value="Não">
+                                    <input type="radio" name="roiUnhas" value="Não" required>
                                     <span class="radiomark"></span>
                                     Não
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="roiUnhas" value="Às vezes">
+                                    <input type="radio" name="roiUnhas" value="Às vezes" required>
                                     <span class="radiomark"></span>
                                     Às vezes
                                 </label>
                             </div>
+                            <span class="field-error" id="roiUnhasError"></span>
                         </div>
                     </div>
                     
@@ -600,58 +631,80 @@
                         </div>
                     </div>
                     
-                    <!-- Declaração de veracidade -->
+                    <!-- Declaração de Veracidade -->
                     <div class="veracity-statement">
                         <label class="checkbox-label">
                             <input type="checkbox" id="confirmVeracity" name="confirmVeracity" required>
                             <span class="checkmark"></span>
-                            Declaro, sob as penas da lei, que todas as informações fornecidas neste formulário são verdadeiras e estou ciente que informações falsas podem acarretar em prejuízos ao meu tratamento.
+                            <span class="veracity-text">Declaro, sob as penas da lei, que todas as informações fornecidas neste formulário são verdadeiras e estou ciente que informações falsas podem acarretar em prejuízos ao meu tratamento.</span>
                         </label>
-                        <span class="error-message" id="veracityError" style="display: none; color: #f44336; font-size: 0.9rem; margin-top: 5px;">
+                        <span class="error-message" id="veracityError" style="display: none;">
                             <i class="fas fa-exclamation-circle"></i> Você deve confirmar a veracidade das informações.
                         </span>
                     </div>
                     
+                    <!-- Assinatura Digital -->
                     <div class="signature-section">
-                        <h4><i class="fas fa-signature"></i> Assinatura do Paciente</h4>
-                        <p>Assine no quadro abaixo para confirmar que todas as informações fornecidas são verdadeiras.</p>
+                        <h4><i class="fas fa-signature"></i> Assinatura Digital do Paciente</h4>
+                        <p class="signature-instructions">Assine no quadro abaixo usando o mouse ou seu dedo (em dispositivos touch).</p>
                         
                         <div class="signature-container">
-                            <canvas id="signatureCanvas"></canvas>
-                            <div class="signature-buttons">
-                                <button type="button" id="clearSignature" class="btn-clear">Limpar Assinatura</button>
-                                <button type="button" id="saveSignature" class="btn-save">Salvar Assinatura</button>
+                            <div class="signature-wrapper">
+                                <canvas id="signatureCanvas"></canvas>
                             </div>
-                            <p class="signature-note">Assinatura salva: <span id="signatureStatus" class="signature-status">Não</span></p>
-                            <span class="error-message" id="signatureError" style="display: none; color: #f44336; font-size: 0.9rem; margin-top: 5px;">
-                                <i class="fas fa-exclamation-circle"></i> Você deve salvar sua assinatura.
-                            </span>
+                            <div class="signature-controls">
+                                <button type="button" id="clearSignature" class="btn-signature btn-clear">
+                                    <i class="fas fa-eraser"></i> Limpar
+                                </button>
+                                <button type="button" id="saveSignature" class="btn-signature btn-save">
+                                    <i class="fas fa-save"></i> Salvar Assinatura
+                                </button>
+                            </div>
+                            <div class="signature-status-info">
+                                <p class="signature-note">
+                                    <i class="fas fa-info-circle"></i> Status: 
+                                    <span id="signatureStatus" class="signature-status">Aguardando assinatura</span>
+                                </p>
+                                <span class="error-message" id="signatureError" style="display: none;">
+                                    <i class="fas fa-exclamation-circle"></i> Você precisa salvar sua assinatura.
+                                </span>
+                            </div>
                         </div>
                     </div>
                     
                     <div class="form-navigation">
                         <button type="button" class="btn-prev" data-prev="section3"><i class="fas fa-arrow-left"></i> Anterior</button>
-                        <button type="submit" class="btn-submit" id="submitForm">Enviar Formulário <i class="fas fa-paper-plane"></i></button>
+                        <button type="submit" class="btn-submit" id="submitForm">
+                            <span class="btn-text">Enviar Formulário</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
                     </div>
                 </section>
             </form>
         </div>
     </main>
 
-    <!-- Modal de confirmação -->
-    <div class="modal" id="confirmationModal">
-        <div class="modal-content">
+    <!-- Modal de Confirmação -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal-container">
             <div class="modal-header">
-                <i class="fas fa-check-circle success-icon"></i>
-                <h3>Formulário Enviado com Sucesso!</h3>
+                <div class="modal-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="modal-title">Formulário Enviado com Sucesso!</h3>
             </div>
             <div class="modal-body">
-                <p>Seu formulário de anamnese foi enviado com sucesso para a Dra. Jaqueline.</p>
-                <p>Um e-mail de confirmação foi enviado para <span id="userEmail" class="highlight-email"></span> com uma cópia do formulário em PDF.</p>
-                <p>O PDF também foi salvo nos registros da clínica.</p>
+                <p class="modal-message">Seu formulário de anamnese foi enviado com sucesso para a Dra. Jaqueline.</p>
+                <p class="modal-message">Um e-mail de confirmação foi enviado para <span id="userEmail" class="highlight-email"></span> com uma cópia do formulário em PDF.</p>
+                <p class="modal-message">O PDF também foi salvo nos registros da clínica.</p>
+                
                 <div class="modal-actions">
-                    <button id="downloadPdf" class="btn-download"><i class="fas fa-download"></i> Baixar PDF</button>
-                    <button id="closeModal" class="btn-cancel">Voltar ao Início</button>
+                    <button id="downloadPdf" class="btn-modal btn-download">
+                        <i class="fas fa-download"></i> Baixar PDF
+                    </button>
+                    <button id="closeModal" class="btn-modal btn-cancel">
+                        Voltar ao Início
+                    </button>
                 </div>
             </div>
         </div>
