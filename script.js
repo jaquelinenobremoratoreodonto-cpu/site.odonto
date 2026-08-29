@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSubmit.classList.toggle('hidden', index !== steps.length - 1);
     updateProgress();
     window.scrollTo({ top: form.offsetTop - 40, behavior: 'smooth' });
+
+    // O canvas de assinatura só tem dimensões reais quando visível.
+    // Por isso, inicializamos/redimensionamos apenas quando a etapa 4 é exibida.
+    if (steps[index].dataset.step === '4') {
+      requestAnimationFrame(() => initSignaturePad());
+    }
   }
 
   function validateStep(index) {
@@ -55,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentStep < steps.length - 1) {
       currentStep++;
       showStep(currentStep);
-      if (currentStep === steps.length - 1) {
+      if (steps[currentStep].dataset.step === '4') {
         declNome.textContent = nomeInput.value || '[nome do paciente]';
       }
     }
@@ -68,10 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Conditional fields (show text input when "Sim" selected)
+  // ===================== Campos condicionais (radio "Sim" mostra input extra) =====================
   document.querySelectorAll('[data-conditional]').forEach(group => {
     const targetName = group.getAttribute('data-conditional');
     const targetField = form.querySelector(`[name="${targetName}"]`);
+    if (!targetField) return;
     group.querySelectorAll('input[type="radio"]').forEach(radio => {
       radio.addEventListener('change', () => {
         if (radio.value === 'Sim' && radio.checked) {
@@ -84,34 +91,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // ===================== Checkbox "Outros" em condições =====================
+  const condicaoOutros = document.getElementById('condicao-outros');
+  const condicaoOutrosDetalhe = document.getElementById('condicao-outros-detalhe');
+  if (condicaoOutros && condicaoOutrosDetalhe) {
+    condicaoOutros.addEventListener('change', () => {
+      if (condicaoOutros.checked) {
+        condicaoOutrosDetalhe.classList.remove('hidden');
+      } else {
+        condicaoOutrosDetalhe.classList.add('hidden');
+        condicaoOutrosDetalhe.value = '';
+      }
+    });
+  }
+
   // ===================== Signature Pad =====================
   const canvas = document.getElementById('signature-pad');
   const ctx = canvas.getContext('2d');
   let drawing = false;
   let hasSignature = false;
+  let signatureInitialized = false;
 
-  function resizeCanvas() {
-    const ratio = window.devicePixelRatio || 1;
+  function initSignaturePad() {
     const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return; // ainda não visível
+
+    const ratio = window.devicePixelRatio || 1;
     canvas.width = rect.width * ratio;
     canvas.height = rect.height * ratio;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(ratio, ratio);
     ctx.strokeStyle = '#d94e87';
     ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    signatureInitialized = true;
   }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
-    if (e.touches) {
+    if (e.touches && e.touches.length) {
       return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
     }
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
   function startDraw(e) {
+    if (!signatureInitialized) initSignaturePad();
     drawing = true; hasSignature = true;
     const p = getPos(e);
     ctx.beginPath();
@@ -131,9 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
   canvas.addEventListener('mousemove', moveDraw);
   canvas.addEventListener('mouseup', endDraw);
   canvas.addEventListener('mouseleave', endDraw);
-  canvas.addEventListener('touchstart', startDraw);
-  canvas.addEventListener('touchmove', moveDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', moveDraw, { passive: false });
   canvas.addEventListener('touchend', endDraw);
+
+  window.addEventListener('resize', () => {
+    if (steps[currentStep].dataset.step === '4') initSignaturePad();
+  });
 
   document.getElementById('clear-signature').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
