@@ -49,7 +49,6 @@
         <div class="field"><label>Nome completo *</label><input type="text" name="nome" required></div>
         <div class="field"><label>Data de nascimento *</label><input type="date" name="nascimento" required></div>
         <div class="field"><label>RG</label><input type="text" name="rg"></div>
-        <div class="field"><label>Órgão expedidor</label><input type="text" name="orgao_expedidor"></div>
         <div class="field"><label>CPF *</label><input type="text" name="cpf" required placeholder="000.000.000-00"></div>
         <div class="field"><label>Sexo</label>
           <select name="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Outro</option><option>Prefiro não informar</option></select>
@@ -59,21 +58,32 @@
         <div class="field"><label>Estado civil</label><input type="text" name="estado_civil"></div>
         <div class="field"><label>Profissão</label><input type="text" name="profissao"></div>
         <div class="field full"><label>Endereço residencial</label><input type="text" name="endereco"></div>
-        <div class="field"><label>Telefone</label><input type="tel" name="telefone"></div>
-        <div class="field"><label>Celular</label><input type="tel" name="celular"></div>
+        <div class="field"><label>Celular / WhatsApp</label><input type="tel" name="celular"></div>
         <div class="field full"><label>E-mail *</label><input type="email" name="email" required></div>
-        <div class="field"><label>Convênio</label><input type="text" name="convenio"></div>
-        <div class="field"><label>N° de inscrição</label><input type="text" name="convenio_num"></div>
-        <div class="field full"><label>Indicado por</label><input type="text" name="indicado_por"></div>
+      </div>
+
+      <div class="qa-list">
+        <div class="qa"><span>Foi indicado por alguém?</span>
+          <div class="radio-group" data-conditional="indicado_por">
+            <label><input type="radio" name="foi_indicado" value="Sim"> Sim</label>
+            <label><input type="radio" name="foi_indicado" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="indicado_por" placeholder="Qual o nome de quem indicou?">
+        </div>
       </div>
     </section>
 
     <!-- STEP 2 -->
     <section class="step" data-step="2">
       <h3 class="step-title">Queixa Principal</h3>
-      <div class="field full">
-        <label>Descreva o motivo da consulta e a evolução do problema</label>
-        <textarea name="queixa_principal" rows="4"></textarea>
+      <div class="qa-list">
+        <div class="qa"><span>Você possui alguma queixa, dor ou incômodo que motivou esta consulta?</span>
+          <div class="radio-group" data-conditional="queixa_principal">
+            <label><input type="radio" name="tem_queixa" value="Sim"> Sim</label>
+            <label><input type="radio" name="tem_queixa" value="Não" checked> Não</label>
+          </div>
+          <textarea class="conditional-field hidden" name="queixa_principal" rows="4" placeholder="Descreva o motivo da consulta e a evolução do problema"></textarea>
+        </div>
       </div>
 
       <h3 class="step-title">História Médica</h3>
@@ -157,7 +167,9 @@
           <label><input type="checkbox" name="condicoes" value="Asma"> Asma</label>
           <label><input type="checkbox" name="condicoes" value="Cansaço frequente"> Cansaço frequente</label>
           <label><input type="checkbox" name="condicoes" value="Alterações renais/bexiga"> Alterações renais/bexiga</label>
+          <label><input type="checkbox" name="condicoes" value="Outros" id="condicao-outros"> Outros</label>
         </div>
+        <input type="text" class="conditional-field hidden" id="condicao-outros-detalhe" name="condicoes_outros_detalhe" placeholder="Qual?">
       </div>
     </section>
 
