@@ -37,7 +37,6 @@
 
   <form id="anamnese-form" class="form-card" novalidate>
 
-    <!-- STEP PROGRESS -->
     <div class="progress-track">
       <div class="progress-fill" id="progress-fill"></div>
     </div>
@@ -178,32 +177,35 @@
       <h3 class="step-title">História Odontológica</h3>
       <div class="qa-list">
         <div class="qa"><span>É a sua primeira visita ao dentista?</span>
-          <div class="radio-group">
+          <div class="radio-group" id="primeira-visita-group">
             <label><input type="radio" name="primeira_visita" value="Sim"> Sim</label>
-            <label><input type="radio" name="primeira_visita" value="Não" checked> Não</label>
+            <label><input type="radio" name="primeira_visita" value="Não"> Não</label>
           </div>
         </div>
-        <div class="field"><label>Data do último tratamento odontológico</label><input type="date" name="ultimo_tratamento"></div>
-        <div class="qa"><span>Já abandonou algum tratamento odontológico?</span>
-          <div class="radio-group" data-conditional="motivo_abandono">
-            <label><input type="radio" name="abandonou_tratamento" value="Sim"> Sim</label>
-            <label><input type="radio" name="abandonou_tratamento" value="Não" checked> Não</label>
+
+        <div id="visitas-anteriores" class="extra-questions hidden">
+          <div class="field"><label>Data do último tratamento odontológico</label><input type="date" name="ultimo_tratamento"></div>
+          <div class="qa"><span>Já abandonou algum tratamento odontológico?</span>
+            <div class="radio-group" data-conditional="motivo_abandono">
+              <label><input type="radio" name="abandonou_tratamento" value="Sim"> Sim</label>
+              <label><input type="radio" name="abandonou_tratamento" value="Não" checked> Não</label>
+            </div>
+            <input type="text" class="conditional-field hidden" name="motivo_abandono" placeholder="Por quê?">
           </div>
-          <input type="text" class="conditional-field hidden" name="motivo_abandono" placeholder="Por quê?">
-        </div>
-        <div class="qa"><span>Já recebeu anestesia em tratamento odontológico?</span>
-          <div class="radio-group">
-            <label><input type="radio" name="anestesia_previa" value="Sim"> Sim</label>
-            <label><input type="radio" name="anestesia_previa" value="Não" checked> Não</label>
+          <div class="qa"><span>Já recebeu anestesia em tratamento odontológico?</span>
+            <div class="radio-group">
+              <label><input type="radio" name="anestesia_previa" value="Sim"> Sim</label>
+              <label><input type="radio" name="anestesia_previa" value="Não" checked> Não</label>
+            </div>
           </div>
-        </div>
-        <div class="qa"><span>Visita regularmente o cirurgião-dentista?</span>
-          <div class="radio-group">
-            <label><input type="radio" name="visita_regular" value="Sim"> Sim</label>
-            <label><input type="radio" name="visita_regular" value="Não" checked> Não</label>
+          <div class="qa"><span>Visita regularmente o cirurgião-dentista?</span>
+            <div class="radio-group">
+              <label><input type="radio" name="visita_regular" value="Sim"> Sim</label>
+              <label><input type="radio" name="visita_regular" value="Não" checked> Não</label>
+            </div>
           </div>
+          <div class="field"><label>De quanto em quanto tempo costuma visitar o dentista?</label><input type="text" name="frequencia_visita"></div>
         </div>
-        <div class="field"><label>De quanto em quanto tempo costuma visitar o dentista?</label><input type="text" name="frequencia_visita"></div>
       </div>
 
       <h3 class="step-title">Hábitos de Higiene Oral</h3>
@@ -253,6 +255,7 @@
         <div class="field"><label>Perfil social</label>
           <select name="perfil_social"><option value="">Selecione</option><option>Extrovertido(a)</option><option>Introvertido(a)</option><option>Comunicativo(a)</option><option>Reservado(a)</option></select>
         </div>
+        <div class="field full"><label>Qual sua música ou banda favorita? 🎵</label><input type="text" name="musica_favorita" placeholder="Nos conte um pouco sobre você!"></div>
       </div>
       <div class="field full">
         <label>Informações adicionais que considere relevantes</label>
