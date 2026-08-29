@@ -1,0 +1,257 @@
+/* ===================== */
+/* Dra. Jaqueline Nobre Moratore - Anamnese */
+/* Paleta: Branco + Rosa, delicado e moderno */
+/* ===================== */
+
+:root {
+  --rosa-claro: #ffe4ec;
+  --rosa: #f7a8c4;
+  --rosa-medio: #ec6ea3;
+  --rosa-escuro: #d94e87;
+  --branco: #ffffff;
+  --cinza-texto: #4a4453;
+  --cinza-claro: #f8f7f9;
+  --erro: #e0577a;
+  --sombra: 0 8px 30px rgba(236, 110, 163, 0.15);
+  --transicao: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--cinza-texto);
+  background: linear-gradient(180deg, #fff 0%, var(--rosa-claro) 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.bg-blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+.blob {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, var(--rosa) 0%, transparent 70%);
+  opacity: 0.35; filter: blur(40px);
+  animation: float 12s ease-in-out infinite;
+}
+.blob1 { width: 400px; height: 400px; top: -100px; left: -100px; }
+.blob2 { width: 300px; height: 300px; bottom: -80px; right: -80px; animation-delay: 3s; }
+.blob3 { width: 250px; height: 250px; top: 40%; right: 10%; animation-delay: 6s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-30px) translateX(20px); }
+}
+
+.site-header {
+  padding: 28px 20px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rosa-claro);
+}
+.header-content { max-width: 900px; margin: 0 auto; }
+.brand { display: flex; align-items: center; gap: 16px; }
+.brand-icon {
+  font-size: 34px;
+  background: linear-gradient(135deg, var(--rosa-claro), var(--rosa));
+  padding: 12px; border-radius: 50%;
+  box-shadow: var(--sombra);
+}
+.brand-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 24px;
+  color: var(--rosa-escuro);
+}
+.brand-text p { font-size: 13px; color: var(--cinza-texto); opacity: 0.8; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 40px 20px 80px; }
+
+.intro-card {
+  text-align: center; margin-bottom: 30px;
+}
+.intro-card h2 {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: 30px; color: var(--rosa-escuro); margin-bottom: 10px;
+}
+.intro-card p { font-size: 15px; color: var(--cinza-texto); opacity: 0.85; max-width: 600px; margin: 0 auto; }
+
+.form-card {
+  background: var(--branco);
+  border-radius: 24px;
+  box-shadow: var(--sombra);
+  padding: 40px;
+  position: relative;
+}
+
+.progress-track {
+  height: 6px; background: var(--cinza-claro); border-radius: 10px;
+  margin-bottom: 34px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 25%;
+  background: linear-gradient(90deg, var(--rosa), var(--rosa-escuro));
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.step { display: none; animation: fadeSlide 0.5s ease; }
+.step.active { display: block; }
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-title {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  color: var(--rosa-escuro);
+  font-size: 20px;
+  margin: 28px 0 16px;
+  border-bottom: 2px solid var(--rosa-claro);
+  padding-bottom: 8px;
+}
+.step-title:first-child { margin-top: 0; }
+
+.grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+
+label { font-size: 13px; font-weight: 500; color: var(--cinza-texto); }
+
+input, select, textarea {
+  border: 1.5px solid #f0dbe4;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+  background: var(--cinza-claro);
+  transition: var(--transicao);
+  outline: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--rosa-medio);
+  background: var(--branco);
+  box-shadow: 0 0 0 4px rgba(236,110,163,0.12);
+}
+textarea { resize: vertical; }
+
+.qa-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 10px; }
+.qa {
+  background: var(--cinza-claro);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: var(--transicao);
+}
+.qa:hover { background: var(--rosa-claro); }
+.qa span { font-size: 14px; font-weight: 500; }
+
+.radio-group { display: flex; gap: 18px; flex-wrap: wrap; }
+.radio-group label {
+  display: flex; align-items: center; gap: 6px; font-weight: 400; font-size: 13px; cursor: pointer;
+}
+input[type="radio"], input[type="checkbox"] {
+  accent-color: var(--rosa-escuro);
+  width: 16px; height: 16px; cursor: pointer;
+}
+
+.conditional-field { margin-top: 4px; }
+.conditional-field.hidden { display: none; }
+
+.checkbox-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+  background: var(--cinza-claro); border-radius: 14px; padding: 16px;
+}
+.checkbox-grid label {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 400; cursor: pointer;
+}
+
+.declaration-box {
+  background: var(--rosa-claro);
+  border-radius: 16px;
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.confirm-check {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 14px; margin-bottom: 24px; cursor: pointer;
+}
+
+.signature-wrap { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+#signature-pad {
+  border: 2px dashed var(--rosa);
+  border-radius: 14px;
+  background: var(--cinza-claro);
+  width: 100%; max-width: 600px; height: 180px;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.btn-ghost {
+  background: none; border: 1.5px solid var(--rosa-medio); color: var(--rosa-escuro);
+  padding: 8px 18px; border-radius: 30px; font-size: 13px; cursor: pointer;
+  transition: var(--transicao);
+}
+.btn-ghost:hover { background: var(--rosa-claro); }
+
+.form-error {
+  color: var(--erro); background: #fdecf1; border-radius: 10px;
+  padding: 10px 16px; font-size: 13px; margin-top: 10px;
+}
+.form-error.hidden { display: none; }
+
+.nav-buttons {
+  display: flex; justify-content: space-between; margin-top: 34px; gap: 12px;
+}
+.btn-primary, .btn-secondary {
+  padding: 13px 30px; border-radius: 30px; font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; transition: var(--transicao);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--rosa-medio), var(--rosa-escuro));
+  color: white; margin-left: auto;
+  box-shadow: 0 6px 18px rgba(217, 78, 135, 0.35);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(217,78,135,0.45); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.btn-secondary {
+  background: var(--cinza-claro); color: var(--cinza-texto);
+}
+.btn-secondary:hover { background: var(--rosa-claro); }
+.hidden { display: none !important; }
+
+.success-screen {
+  text-align: center; background: var(--branco); border-radius: 24px;
+  box-shadow: var(--sombra); padding: 60px 40px; animation: fadeSlide 0.6s ease;
+}
+.success-icon {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--rosa), var(--rosa-escuro));
+  color: white; font-size: 36px; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  animation: pop 0.5s ease;
+}
+@keyframes pop { 0% { transform: scale(0); } 80% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.success-screen h2 { color: var(--rosa-escuro); font-family: 'Playfair Display', serif; font-style: italic; margin-bottom: 10px; }
+
+.site-footer {
+  text-align: center; padding: 30px 20px; font-size: 12px; color: var(--cinza-texto); opacity: 0.6;
+}
+
+.fade-in-down { animation: fadeDown 0.6s ease; }
+.fade-in-up { animation: fadeSlide 0.7s ease; }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 640px) {
+  .grid-2, .checkbox-grid { grid-template-columns: 1fr; }
+  .form-card { padding: 24px; }
+  .nav-buttons { flex-direction: column-reverse; }
+  .btn-primary { margin-left: 0; }
+}

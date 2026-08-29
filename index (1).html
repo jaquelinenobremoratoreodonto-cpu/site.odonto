@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Anamnese Odontológica | Dra. Jaqueline Nobre Moratore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="bg-blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+
+<header class="site-header fade-in-down">
+  <div class="header-content">
+    <div class="brand">
+      <span class="brand-icon">🦷</span>
+      <div class="brand-text">
+        <h1>Dra. Jaqueline Nobre Moratore</h1>
+        <p>Cirurgiã Dentista · CRO 173848</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="intro-card fade-in-up">
+    <h2>Ficha de Anamnese</h2>
+    <p>Antes da sua consulta, preencha o formulário abaixo com atenção. Essas informações são essenciais para garantir um atendimento seguro e personalizado.</p>
+  </section>
+
+  <form id="anamnese-form" class="form-card" novalidate>
+
+    <!-- STEP PROGRESS -->
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <section class="step active" data-step="1">
+      <h3 class="step-title">Informações do Paciente</h3>
+      <div class="grid-2">
+        <div class="field"><label>Nome completo *</label><input type="text" name="nome" required></div>
+        <div class="field"><label>Data de nascimento *</label><input type="date" name="nascimento" required></div>
+        <div class="field"><label>RG</label><input type="text" name="rg"></div>
+        <div class="field"><label>Órgão expedidor</label><input type="text" name="orgao_expedidor"></div>
+        <div class="field"><label>CPF *</label><input type="text" name="cpf" required placeholder="000.000.000-00"></div>
+        <div class="field"><label>Sexo</label>
+          <select name="sexo"><option value="">Selecione</option><option>Feminino</option><option>Masculino</option><option>Outro</option><option>Prefiro não informar</option></select>
+        </div>
+        <div class="field"><label>Naturalidade</label><input type="text" name="naturalidade"></div>
+        <div class="field"><label>Nacionalidade</label><input type="text" name="nacionalidade"></div>
+        <div class="field"><label>Estado civil</label><input type="text" name="estado_civil"></div>
+        <div class="field"><label>Profissão</label><input type="text" name="profissao"></div>
+        <div class="field full"><label>Endereço residencial</label><input type="text" name="endereco"></div>
+        <div class="field"><label>Telefone</label><input type="tel" name="telefone"></div>
+        <div class="field"><label>Celular</label><input type="tel" name="celular"></div>
+        <div class="field full"><label>E-mail *</label><input type="email" name="email" required></div>
+        <div class="field"><label>Convênio</label><input type="text" name="convenio"></div>
+        <div class="field"><label>N° de inscrição</label><input type="text" name="convenio_num"></div>
+        <div class="field full"><label>Indicado por</label><input type="text" name="indicado_por"></div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" data-step="2">
+      <h3 class="step-title">Queixa Principal</h3>
+      <div class="field full">
+        <label>Descreva o motivo da consulta e a evolução do problema</label>
+        <textarea name="queixa_principal" rows="4"></textarea>
+      </div>
+
+      <h3 class="step-title">História Médica</h3>
+      <div class="qa-list">
+        <div class="qa"><span>Faz tratamento médico atualmente?</span>
+          <div class="radio-group" data-conditional="motivo_tratamento_medico">
+            <label><input type="radio" name="tratamento_medico" value="Sim"> Sim</label>
+            <label><input type="radio" name="tratamento_medico" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="motivo_tratamento_medico" placeholder="Por quê?">
+        </div>
+
+        <div class="qa"><span>Tem alergia ou sensibilidade a algum medicamento?</span>
+          <div class="radio-group" data-conditional="qual_alergia">
+            <label><input type="radio" name="alergia_medicamento" value="Sim"> Sim</label>
+            <label><input type="radio" name="alergia_medicamento" value="Não" checked> Não</label>
+            <label><input type="radio" name="alergia_medicamento" value="Não sei"> Não sei</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="qual_alergia" placeholder="Qual medicamento?">
+        </div>
+
+        <div class="qa"><span>Atualmente está tomando algum medicamento?</span>
+          <div class="radio-group" data-conditional="qual_medicamento_atual">
+            <label><input type="radio" name="medicamento_atual" value="Sim"> Sim</label>
+            <label><input type="radio" name="medicamento_atual" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="qual_medicamento_atual" placeholder="Qual medicamento e motivo?">
+        </div>
+
+        <div class="qa"><span>Possui alguma doença ou alteração clínica?</span>
+          <div class="radio-group" data-conditional="qual_doenca">
+            <label><input type="radio" name="doenca_clinica" value="Sim"> Sim</label>
+            <label><input type="radio" name="doenca_clinica" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="qual_doenca" placeholder="Qual?">
+        </div>
+
+        <div class="qa"><span>Já foi hospitalizado(a) ou submetido(a) a cirurgia(s)?</span>
+          <div class="radio-group" data-conditional="detalhe_hospitalizacao">
+            <label><input type="radio" name="hospitalizacao" value="Sim"> Sim</label>
+            <label><input type="radio" name="hospitalizacao" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="detalhe_hospitalizacao" placeholder="Quando e por quê?">
+        </div>
+
+        <div class="qa"><span>Já recebeu transfusão de sangue?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="transfusao" value="Sim"> Sim</label>
+            <label><input type="radio" name="transfusao" value="Não" checked> Não</label>
+          </div>
+        </div>
+
+        <div class="qa"><span>Quando se corta, sangra muito?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="sangramento" value="Sim"> Sim</label>
+            <label><input type="radio" name="sangramento" value="Não" checked> Não</label>
+          </div>
+        </div>
+
+        <div class="qa"><span>Alteração de pressão arterial?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="pressao" value="Baixa"> Baixa</label>
+            <label><input type="radio" name="pressao" value="Alta"> Alta</label>
+            <label><input type="radio" name="pressao" value="Não" checked> Não</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field full">
+        <label>Marque as condições abaixo que se aplicam a você</label>
+        <div class="checkbox-grid">
+          <label><input type="checkbox" name="condicoes" value="Cardiopatia"> Cardiopatia</label>
+          <label><input type="checkbox" name="condicoes" value="Bronquite"> Bronquite</label>
+          <label><input type="checkbox" name="condicoes" value="Anemia"> Anemia</label>
+          <label><input type="checkbox" name="condicoes" value="Diabetes"> Diabetes</label>
+          <label><input type="checkbox" name="condicoes" value="Rinite"> Rinite</label>
+          <label><input type="checkbox" name="condicoes" value="Sinusite"> Sinusite</label>
+          <label><input type="checkbox" name="condicoes" value="Hepatite"> Hepatite</label>
+          <label><input type="checkbox" name="condicoes" value="Colesterol alto"> Colesterol alto</label>
+          <label><input type="checkbox" name="condicoes" value="Febre reumática"> Febre reumática</label>
+          <label><input type="checkbox" name="condicoes" value="Asma"> Asma</label>
+          <label><input type="checkbox" name="condicoes" value="Cansaço frequente"> Cansaço frequente</label>
+          <label><input type="checkbox" name="condicoes" value="Alterações renais/bexiga"> Alterações renais/bexiga</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" data-step="3">
+      <h3 class="step-title">História Odontológica</h3>
+      <div class="qa-list">
+        <div class="qa"><span>É a sua primeira visita ao dentista?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="primeira_visita" value="Sim"> Sim</label>
+            <label><input type="radio" name="primeira_visita" value="Não" checked> Não</label>
+          </div>
+        </div>
+        <div class="field"><label>Data do último tratamento odontológico</label><input type="date" name="ultimo_tratamento"></div>
+        <div class="qa"><span>Já abandonou algum tratamento odontológico?</span>
+          <div class="radio-group" data-conditional="motivo_abandono">
+            <label><input type="radio" name="abandonou_tratamento" value="Sim"> Sim</label>
+            <label><input type="radio" name="abandonou_tratamento" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="motivo_abandono" placeholder="Por quê?">
+        </div>
+        <div class="qa"><span>Já recebeu anestesia em tratamento odontológico?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="anestesia_previa" value="Sim"> Sim</label>
+            <label><input type="radio" name="anestesia_previa" value="Não" checked> Não</label>
+          </div>
+        </div>
+        <div class="qa"><span>Visita regularmente o cirurgião-dentista?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="visita_regular" value="Sim"> Sim</label>
+            <label><input type="radio" name="visita_regular" value="Não" checked> Não</label>
+          </div>
+        </div>
+        <div class="field"><label>De quanto em quanto tempo costuma visitar o dentista?</label><input type="text" name="frequencia_visita"></div>
+      </div>
+
+      <h3 class="step-title">Hábitos de Higiene Oral</h3>
+      <div class="grid-2">
+        <div class="field"><label>Frequência de escovação diária</label><input type="text" name="frequencia_escovacao" placeholder="Ex: 3x ao dia"></div>
+        <div class="field"><label>Creme dental utilizado</label><input type="text" name="creme_dental"></div>
+      </div>
+      <div class="qa-list">
+        <div class="qa"><span>Faz uso de fio dental?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="fio_dental" value="Sim"> Sim</label>
+            <label><input type="radio" name="fio_dental" value="Não" checked> Não</label>
+          </div>
+        </div>
+        <div class="qa"><span>Faz bochecho com solução fluoretada?</span>
+          <div class="radio-group" data-conditional="qual_bochecho">
+            <label><input type="radio" name="bochecho_fluoretado" value="Sim"> Sim</label>
+            <label><input type="radio" name="bochecho_fluoretado" value="Não" checked> Não</label>
+          </div>
+          <input type="text" class="conditional-field hidden" name="qual_bochecho" placeholder="Qual produto?">
+        </div>
+        <div class="qa"><span>Escova regularmente a língua?</span>
+          <div class="radio-group">
+            <label><input type="radio" name="escova_lingua" value="Sim"> Sim</label>
+            <label><input type="radio" name="escova_lingua" value="Não" checked> Não</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field full">
+        <label>Hábitos que se aplicam a você</label>
+        <div class="checkbox-grid">
+          <label><input type="checkbox" name="habitos" value="Dorme com a boca aberta"> Dorme com a boca aberta</label>
+          <label><input type="checkbox" name="habitos" value="Ronca"> Ronca</label>
+          <label><input type="checkbox" name="habitos" value="Morde objetos"> Morde objetos</label>
+          <label><input type="checkbox" name="habitos" value="Morde os lábios"> Morde os lábios</label>
+          <label><input type="checkbox" name="habitos" value="Range os dentes (bruxismo)"> Range os dentes (bruxismo)</label>
+          <label><input type="checkbox" name="habitos" value="Rói as unhas"> Rói as unhas</label>
+        </div>
+      </div>
+
+      <h3 class="step-title">Perfil Comportamental</h3>
+      <div class="grid-2">
+        <div class="field"><label>Temperamento</label>
+          <select name="temperamento"><option value="">Selecione</option><option>Calmo(a)</option><option>Agitado(a)</option></select>
+        </div>
+        <div class="field"><label>Perfil social</label>
+          <select name="perfil_social"><option value="">Selecione</option><option>Extrovertido(a)</option><option>Introvertido(a)</option><option>Comunicativo(a)</option><option>Reservado(a)</option></select>
+        </div>
+      </div>
+      <div class="field full">
+        <label>Informações adicionais que considere relevantes</label>
+        <textarea name="observacoes_gerais" rows="3"></textarea>
+      </div>
+    </section>
+
+    <!-- STEP 4: Confirmation & Signature -->
+    <section class="step" data-step="4">
+      <h3 class="step-title">Confirmação e Assinatura</h3>
+      <div class="declaration-box">
+        <p>Eu, <strong id="decl-nome">[nome do paciente]</strong>, declaro para todos os fins que as informações prestadas neste questionário são verdadeiras e completas, não tendo omitido nenhum dado relevante sobre meu estado de saúde. Autorizo e concordo com o plano de tratamento a ser proposto pela profissional, bem como com as normas apresentadas.</p>
+      </div>
+      <label class="confirm-check">
+        <input type="checkbox" id="confirm-truth" required>
+        <span>Confirmo que as informações acima são verdadeiras e completas.</span>
+      </label>
+
+      <div class="field full">
+        <label>Assinatura (desenhe abaixo com o mouse ou o dedo) *</label>
+        <div class="signature-wrap">
+          <canvas id="signature-pad" width="600" height="180"></canvas>
+          <button type="button" id="clear-signature" class="btn-ghost">Limpar assinatura</button>
+        </div>
+      </div>
+
+      <div id="form-error" class="form-error hidden"></div>
+    </section>
+
+    <div class="nav-buttons">
+      <button type="button" id="btn-prev" class="btn-secondary hidden">Voltar</button>
+      <button type="button" id="btn-next" class="btn-primary">Continuar</button>
+      <button type="submit" id="btn-submit" class="btn-primary hidden">Enviar Ficha</button>
+    </div>
+  </form>
+
+  <div id="success-screen" class="success-screen hidden">
+    <div class="success-icon">✓</div>
+    <h2>Ficha enviada com sucesso!</h2>
+    <p>Você receberá uma cópia em PDF no e-mail informado. Até a sua consulta!</p>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <p>Dra. Jaqueline Nobre Moratore · CRO 173848 · jaqueline.nobre.moratore.odonto@gmail.com · (11) 98470-8439</p>
+</footer>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
