@@ -4,5 +4,5 @@
 // (Implantar > Nova implantação > Aplicativo da Web)
 // ============================================
 const CONFIG = {
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxgdRdL_FWD0ISI0U0yT7DBktihyVG6aSPnjS9xacXssaC3LWCC7Sk0eK9HgNSIE3wT/exec"
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyVdfGfmX_AyE9r8p_wrU01RdXoTOibNigeCswwkOkw736Z8zg5-SEnQwvx11zRATu9/exec"
 };
