@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateProgress();
     window.scrollTo({ top: form.offsetTop - 40, behavior: 'smooth' });
 
-    // O canvas de assinatura só tem dimensões reais quando visível.
-    // Por isso, inicializamos/redimensionamos apenas quando a etapa 4 é exibida.
     if (steps[index].dataset.step === '4') {
       requestAnimationFrame(() => initSignaturePad());
     }
@@ -105,6 +103,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ===================== "Primeira Visita ao Dentista" =====================
+  // Regra: se "Não" -> mostra perguntas sobre visitas anteriores.
+  //        se "Sim" -> esconde e limpa essas perguntas (paciente nunca foi ao dentista).
+  const primeiraVisitaGroup = document.getElementById('primeira-visita-group');
+  const visitasAnteriores = document.getElementById('visitas-anteriores');
+  if (primeiraVisitaGroup && visitasAnteriores) {
+    primeiraVisitaGroup.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'Não' && radio.checked) {
+          visitasAnteriores.classList.remove('hidden');
+        } else if (radio.value === 'Sim' && radio.checked) {
+          visitasAnteriores.classList.add('hidden');
+          visitasAnteriores.querySelectorAll('input, textarea').forEach(el => {
+            if (el.type === 'radio') { el.checked = false; }
+            else { el.value = ''; }
+          });
+          visitasAnteriores.querySelectorAll('.conditional-field').forEach(el => el.classList.add('hidden'));
+        }
+      });
+    });
+  }
+
   // ===================== Signature Pad =====================
   const canvas = document.getElementById('signature-pad');
   const ctx = canvas.getContext('2d');
@@ -114,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function initSignaturePad() {
     const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return; // ainda não visível
+    if (rect.width === 0 || rect.height === 0) return;
 
     const ratio = window.devicePixelRatio || 1;
     canvas.width = rect.width * ratio;
